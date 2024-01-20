@@ -5,7 +5,7 @@ import { LessonCategoryInput } from '../../interface';
 import { DataResponse, DeleteResponse } from '../../../../interfaces/response';
 import { LessonCategory } from '../entity/lessonCategory';
 
-@Path('api/lessons/lesson-category')
+@Path('api/lesson-categories')
 export class LessonCategoryController {
   @Inject
   private readonly categoryService: LessonCategoryService;

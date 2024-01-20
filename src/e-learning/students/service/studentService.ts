@@ -21,7 +21,7 @@ export class StudentService implements StudentServiceInterface {
   @Inject
   private readonly studentRepository: StudentRepository;
   @Inject
-  private readonly customErrorResponse: ErrorMapper;
+  private readonly errorResponseMapper: ErrorMapper;
 
   async createStudent(input: StudentInput): Promise<DataResponse> {
     try {
@@ -32,7 +32,7 @@ export class StudentService implements StudentServiceInterface {
       student.setPassword(hashPassword);
 
       await this.studentRepository.save(student);
-      const studentId = student.id;
+      const studentId = student.studentId;
 
       const { accessToken, refreshToken } =
         await this.jwtAuthService.tokenGenerator(student);
@@ -44,20 +44,25 @@ export class StudentService implements StudentServiceInterface {
       };
     } catch ({ message }) {
       Logger.error(message);
-      return this.customErrorResponse.throw(message);
+      return this.errorResponseMapper.throw(message);
     }
   }
 
-  async login(loginInput: LoginInput): Promise<Partial<TokenResponse>> {
+  async login({
+    email,
+    password,
+  }: LoginInput): Promise<Partial<TokenResponse>> {
     try {
       const student = await CredentialManager.verifyCredentials(
-        loginInput.email,
-        loginInput.password
+        email,
+        password
       );
 
       if (student) {
         const { accessToken, refreshToken } =
           await this.jwtAuthService.tokenGenerator(student);
+
+        await CredentialManager.hashRefreshToken(refreshToken, student);
 
         return { accessToken, refreshToken };
       } else {
@@ -72,39 +77,46 @@ export class StudentService implements StudentServiceInterface {
   }
 
   async getStudents(): Promise<Partial<Student[]>> {
-    const students = this.studentRepository
+    const students = (await this.studentRepository
       .getStudents()
-      .then((students) => students.map(studentResponseMapper));
+      .then((students) => students.map(studentResponseMapper))) as Partial<
+      Student[]
+    >;
 
-    if (students) return students as any;
+    if (students) return students;
 
     return [];
   }
 
   async getStudent(id: number): Promise<DataResponse> {
     try {
-      const student = (await this.studentRepository.getStudent(id)) as Student;
+      const student = studentResponseMapper(
+        <Student>await this.studentRepository.findById(id)
+      );
+
       return { status: 200, data: { student } };
     } catch ({ message }) {
       Logger.error(message);
-      return this.customErrorResponse.throw(message);
+      return this.errorResponseMapper.throw(message);
     }
   }
 
   async updateStudent(
     id: number,
-    studentInput: StudentInput
+    studentInput: StudentInput,
+    studentFromReq: Student
   ): Promise<Partial<DataResponse>> {
     try {
       const student = await this.studentRepository.updateStudent(
         id,
-        studentInput
+        studentInput,
+        studentFromReq
       );
 
       return { status: 203, data: { student } };
     } catch ({ message }) {
       Logger.error(message);
-      return this.customErrorResponse.throw(message);
+      return this.errorResponseMapper.throw(message);
     }
   }
 

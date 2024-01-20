@@ -3,6 +3,7 @@ import { Repository } from 'typeorm';
 import { Student } from '../entity/student';
 import { DataBase } from '../../../db/init';
 import { StudentInput } from '../interface';
+import { studentResponseMapper } from '../mapper/studentResponseMapper';
 
 @Service()
 export class StudentRepository extends Repository<Student> {
@@ -30,24 +31,27 @@ export class StudentRepository extends Repository<Student> {
     await this.delete({ id });
   }
 
-  async updateStudent(id: number, updateInput: StudentInput): Promise<Student> {
-    await this.update({ id }, updateInput);
-    const student = await this.findOne({ where: { id } });
+  async updateStudent(
+    id: number,
+    updateInput: StudentInput,
+    student?: Student
+  ): Promise<Partial<Student>> {
+    await this.createQueryBuilder()
+      .update(await this.findById(id))
+      .set({
+        firstName: updateInput.firstName,
+        lastName: updateInput.lastName,
+        age: updateInput.age,
+        email: updateInput.email,
+        address: updateInput.address,
+        nationality: updateInput.nationality,
+        updatedAt: new Date(),
+      })
+      .where({ id })
+      .execute();
 
-    console.log(student, updateInput);
-
-    if (student) {
-      await this.createQueryBuilder('student')
-        .update(student)
-        .set({ updatedAt: new Date() })
-        .execute();
-
-      return (await this.findOne({ where: { id } }).then(
-        (std) => std
-      )) as Student;
-    }
-
-    return {} as any;
+    const updatedStudent = await this.findById(id);
+    return studentResponseMapper(updatedStudent);
   }
 
   async isExistByEmail(email: string): Promise<Student | null> {

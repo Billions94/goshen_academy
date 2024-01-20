@@ -45,8 +45,6 @@ export class AuthGuard {
       const { decodedToken, expired } =
         await this.jwtAuthService.verifyJwtAccessToken(accessToken);
 
-      console.log({ expired, refreshToken }, refreshToken);
-
       if (decodedToken) {
         const user = await this.studentRepository.findById(
           parseInt(String(decodedToken?.id))
@@ -57,21 +55,19 @@ export class AuthGuard {
           return next();
         }
       } else if (expired && refreshToken) {
-        if (refreshToken) {
-          const { accessToken, user, errorMessage } =
-            await this.jwtAuthService.refreshTokens(refreshToken);
+        const { accessToken, user, errorMessage } =
+          await this.jwtAuthService.refreshTokens(refreshToken);
 
-          if (errorMessage) {
-            Logger.warn('Jwt token expired');
-            return next();
-          }
-          if (accessToken) {
-            res.setHeader('x-access-token', accessToken);
-          }
-
-          req.user = user;
+        if (errorMessage) {
+          Logger.warn('Jwt token expired');
           return next();
         }
+        if (accessToken) {
+          res.setHeader('x-access-token', accessToken);
+        }
+
+        req.user = user;
+        return next();
       }
     }
   };

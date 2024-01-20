@@ -20,21 +20,21 @@ export class Validator {
    * @returns A promise of type void.
    */
   public static validateRegisterInput(input: StudentInput) {
-    if (input.firstName.trim().length <= 0)
+    if (input.firstName?.trim().length <= 0)
       throw new Error('Firstname field cannot be empty');
 
-    if (input.lastName.trim().length <= 0)
+    if (input.lastName?.trim().length <= 0)
       throw new Error('Lastname field cannot be empty');
 
     if (input.age <= 0) throw new Error('Age field cannot be zero or negative');
 
-    if (input.email.trim().length <= 0)
+    if (input.email?.trim().length <= 0)
       throw new Error('Email field cannot be empty');
 
-    if (input.password.trim().length <= 0)
+    if (input.password?.trim().length <= 0)
       throw new Error('Password field cannot be empty');
 
-    if (input.confirmPassword.trim().length <= 0)
+    if (input.confirmPassword?.trim().length <= 0)
       throw new Error('Confirm Password field cannot be empty');
 
     if (input.confirmPassword !== input.password)

@@ -16,7 +16,7 @@ export class Result {
   id: number;
   @OneToOne(() => Student, { eager: true, cascade: true })
   @JoinColumn()
-  student: Student;
+  studentId: Student;
   @ManyToOne(() => Lesson, (lesson) => lesson, { eager: true, cascade: true })
   @JoinColumn()
   lesson: Lesson;

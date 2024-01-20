@@ -20,6 +20,7 @@ export class LessonCategoryService implements LessonCategoryServiceInterface {
   ): Promise<DataResponse> {
     try {
       const category = this.lessonCategoryRepository.create(input);
+      await this.lessonCategoryRepository.save(category);
       const categoryId = category.id;
       return { status: 200, data: { categoryId } };
     } catch ({ message }) {
@@ -29,7 +30,8 @@ export class LessonCategoryService implements LessonCategoryServiceInterface {
   }
 
   async getLessonCategories(): Promise<LessonCategory[]> {
-    return this.lessonCategoryRepository.find();
+    console.log('In here');
+    return await this.lessonCategoryRepository.find();
   }
 
   async getLessonCategory(id: number): Promise<DataResponse> {

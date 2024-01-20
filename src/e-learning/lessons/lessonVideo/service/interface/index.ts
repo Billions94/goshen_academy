@@ -1,18 +1,14 @@
-import { LessonCategoryInput } from '../../../interface';
 import {
   DataResponse,
   DeleteResponse,
 } from '../../../../../interfaces/response';
-import { LessonCategory } from '../../../lessonCategory/entity/lessonCategory';
 import { LessonVideo } from '../../entity/lessonVideo';
+import { LessonVideoInput } from '../../interface';
 
 export interface LessonVideoInterface {
-  createLessonCategory(input: LessonCategoryInput): Promise<DataResponse>;
-  getLessonCategories(): Promise<LessonVideo[]>;
-  getLessonCategory(id: number): Promise<LessonVideo>;
-  updateLessonCategory(
-    id: number,
-    input: LessonCategoryInput
-  ): Promise<DataResponse>;
-  deleteLessonCategory(id: number): Promise<DeleteResponse>;
+  createLessonVideo(input: LessonVideoInput): Promise<DataResponse>;
+  getLessonVideos(): Promise<LessonVideo[]>;
+  getLessonVideo(id: number): Promise<DataResponse>;
+  updateLessonVideo(id: number, input: LessonVideoInput): Promise<DataResponse>;
+  deleteLessonVideo(id: number): Promise<DeleteResponse>;
 }

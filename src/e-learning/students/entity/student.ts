@@ -4,8 +4,13 @@ import {
   Column,
   Entity,
   Index,
+  JoinColumn,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import bcryptService from 'bcrypt';
+import { Getters, Setters } from '../../../decorators';
+import { Result } from '../../result/entity/result';
 
 @Entity({ name: 'Student' })
 export class Student {
@@ -43,14 +48,6 @@ export class Student {
   @BeforeInsert()
   updateCreatedAt() {
     this.createdAt = new Date();
-  }
-
-  @BeforeUpdate()
-  updateUpdatedAt() {
-    console.log(
-      'updated <---------------------------------------------------------------'
-    );
-    this.updatedAt = new Date();
   }
 
   setPassword(password: string) {

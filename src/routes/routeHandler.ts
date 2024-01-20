@@ -5,6 +5,9 @@ import { Inject } from 'typescript-ioc';
 import { StudentController } from '../e-learning/students/controller/studentController';
 import { LessonController } from '../e-learning/lessons/lesson/controller/lessonController';
 import { LessonCategoryController } from '../e-learning/lessons/lessonCategory/controller/lessonCategoryController';
+import { QuizController } from '../e-learning/quiz/controller/quizController';
+import { ResultController } from '../e-learning/result/controller/resultController';
+import { LessonVideoController } from '../e-learning/lessons/lessonVideo/controller/lessonVideoController';
 
 /**
  * Class for handling routers and controllers
@@ -16,6 +19,12 @@ export class RouteHandler {
   private readonly lessonController: LessonController;
   @Inject
   private readonly lessonCategoryController: LessonCategoryController;
+  @Inject
+  private readonly lessonVideoController: LessonVideoController;
+  @Inject
+  private readonly quizController: QuizController;
+  @Inject
+  private readonly resultController: ResultController;
 
   /**
    * @remarks This is a custom method.

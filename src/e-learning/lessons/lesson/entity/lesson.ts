@@ -15,7 +15,10 @@ export class Lesson {
   name: string;
   @Column('varchar', { name: 'contents', nullable: false })
   contents: string;
-  @OneToOne(() => LessonCategory, (category) => category, { cascade: true })
+  @OneToOne(() => LessonCategory, (category) => category, {
+    eager: true,
+    cascade: true,
+  })
   @JoinColumn()
   category: LessonCategory;
 }

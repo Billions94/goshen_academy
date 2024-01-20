@@ -18,9 +18,9 @@ export class LessonService implements LessonServiceInterface {
   async createLesson(input: LessonInput): Promise<DataResponse> {
     try {
       const lesson = this.lessonRepository.create(input);
-      const lessonId = lesson.id;
       lesson.category = input.category;
       await this.lessonRepository.save(lesson);
+      const lessonId = lesson.id;
 
       return { status: 201, data: { lessonId } };
     } catch ({ message }) {

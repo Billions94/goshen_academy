@@ -12,8 +12,8 @@ export class DataBase {
         await DataBase.dataSource.synchronize();
         Logger.info('Connected to database ✅');
       }
-    } catch (e) {
-      Logger.error(e.message);
+    } catch ({ message }) {
+      Logger.error(message);
     }
   }
 }

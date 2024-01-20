@@ -24,17 +24,6 @@ export class JwtAuthService {
       id: String(student.id),
     });
 
-    const hashedRefresh = await bcryptService.hash(
-      refreshToken,
-      parseInt(<string>process.env.SALT_FACTOR)
-    );
-
-    await this.studentRepository
-      .createQueryBuilder('user')
-      .update(student)
-      .set({ refreshToken: hashedRefresh })
-      .execute();
-
     return { accessToken, refreshToken };
   }
 

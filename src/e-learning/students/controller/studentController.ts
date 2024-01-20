@@ -38,11 +38,13 @@ export class StudentController {
     return this.studentService.getStudents();
   }
 
+  /*
   @GET
-  @Path(':id')
+  @Path('/:id')
   async getStudent(@PathParam('id') id: number): Promise<DataResponse> {
     return this.studentService.getStudent(id);
   }
+*/
 
   @PATCH
   @Path(':id')
@@ -51,8 +53,7 @@ export class StudentController {
     @ContextRequest { user }: Request,
     input: StudentInput
   ): Promise<Partial<DataResponse>> {
-    console.log({ user });
-    return this.studentService.updateStudent(id, input);
+    return this.studentService.updateStudent(id, input, <Student>user);
   }
 
   @DELETE
