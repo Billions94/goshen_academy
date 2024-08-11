@@ -1,9 +1,7 @@
+import { Service } from 'typedi';
 import { Inject } from 'typescript-ioc';
-import { StudentRepository } from '../../e-learning/students/repository/studentRepository';
 import { StudentInput } from '../../e-learning/students/interface';
 import { ErrorMapper } from '../mapper/errorMapper';
-import { ErrorResponse } from '../../interfaces';
-import { Service } from 'typedi';
 
 @Service()
 export class Validator {
@@ -26,7 +24,8 @@ export class Validator {
     if (input.lastName?.trim().length <= 0)
       throw new Error('Lastname field cannot be empty');
 
-    if (input.age <= 0) throw new Error('Age field cannot be zero or negative');
+    if (input.dateOfBirth < new Date('1980-05-02'))
+      throw new Error('Age field cannot be zero or negative');
 
     if (input.email?.trim().length <= 0)
       throw new Error('Email field cannot be empty');

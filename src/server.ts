@@ -1,14 +1,14 @@
-import 'reflect-metadata';
-import express, { Express } from 'express';
 import cors from 'cors';
 import { config } from 'dotenv';
-import { DataBase } from './db/init';
-import Requestlogger from './utils/logger/requestLogger';
+import express, { Express } from 'express';
+import 'reflect-metadata';
 import { Inject } from 'typescript-ioc';
-import { RouteHandler } from './routes/routeHandler';
-import Logger from './utils/logger/logger';
+import { DataBase } from './db/init';
 import { AuthGuard } from './middlewares/authGuard';
 import { RequireUser } from './middlewares/requireUser';
+import { RouteHandler } from './routes/routeHandler';
+import Logger from './utils/logger/logger';
+import Requestlogger from './utils/logger/requestLogger';
 
 config({ path: '.env' });
 export class Server {
@@ -19,7 +19,7 @@ export class Server {
   @Inject
   private readonly routes: RouteHandler;
   private readonly server: Express;
-  private readonly port = parseInt(process.env.PORT || '8080');
+  private readonly port = parseInt(process.env.PORT ?? '8080');
 
   constructor() {
     this.server = express();

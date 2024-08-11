@@ -10,20 +10,25 @@ import {
 import { Lesson } from '../../lessons/lesson/entity/lesson';
 import { Student } from '../../students/entity/student';
 
-@Entity({ name: 'Result' })
+@Entity({ name: 'result' })
 export class Result {
   @PrimaryGeneratedColumn()
   id: number;
+
   @OneToOne(() => Student, { eager: true, cascade: true })
-  @JoinColumn()
+  @JoinColumn({ name: 'student_id' })
   studentId: Student;
+
   @ManyToOne(() => Lesson, (lesson) => lesson, { eager: true, cascade: true })
-  @JoinColumn()
+  @JoinColumn({ name: 'lesson_id' })
   lesson: Lesson;
+
   @Column('int', { name: 'score', nullable: false })
-  Score: number;
-  @Column('int', { name: 'totalItem', nullable: false })
+  score: number;
+
+  @Column('int', { name: 'total_item', nullable: false })
   totalItem: number;
+
   @Column('timestamptz', { name: 'date', nullable: false })
   date: Date | string;
 

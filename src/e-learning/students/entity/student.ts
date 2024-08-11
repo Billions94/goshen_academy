@@ -1,43 +1,48 @@
 import {
   BeforeInsert,
-  BeforeUpdate,
   Column,
   Entity,
   Index,
-  JoinColumn,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import bcryptService from 'bcrypt';
-import { Getters, Setters } from '../../../decorators';
-import { Result } from '../../result/entity/result';
 
-@Entity({ name: 'Student' })
+@Entity({ name: 'student' })
 export class Student {
   @PrimaryGeneratedColumn()
   id: number;
-  @Column('varchar', { name: 'studentId', length: 250, nullable: false })
+
+  @Column('varchar', { name: 'student_id', length: 50, nullable: false })
   studentId: string;
-  @Column('varchar', { name: 'firstName', length: 250, nullable: false })
+
+  @Column('varchar', { name: 'first_name', length: 50, nullable: false })
   firstName: string;
-  @Column('varchar', { name: 'lastName', length: 250, nullable: false })
+
+  @Column('varchar', { name: 'last_name', length: 50, nullable: false })
   lastName: string;
-  @Column('varchar', { name: 'nationality', length: 250, nullable: true })
+
+  @Column('varchar', { name: 'nationality', length: 50, nullable: true })
   nationality: string;
-  @Column('varchar', { name: 'address', length: 250, nullable: true })
+
+  @Column('varchar', { name: 'address', length: 150, nullable: true })
   address: string;
-  @Column('int', { name: 'age', nullable: false })
-  age: number;
+
+  @Column('date', { name: 'date_of_birth', nullable: false })
+  dateOfBirth: Date;
+
   @Index({ unique: true })
-  @Column('varchar', { name: 'email', length: 250, nullable: false })
+  @Column('varchar', { name: 'email', length: 50, nullable: true })
   email: string;
+
   @Column('varchar', { name: 'password', length: 250, nullable: true })
   private password: string;
-  @Column('varchar', { name: 'refreshToken', length: 250, nullable: true })
+
+  @Column('varchar', { name: 'refresh_token', length: 250, nullable: true })
   refreshToken: string | null;
-  @Column('timestamptz', { name: 'createdAt', nullable: false })
+
+  @Column('timestamptz', { name: 'created_at', nullable: true })
   createdAt: string | Date;
-  @Column('timestamptz', { name: 'updatedAt', nullable: true })
+
+  @Column('timestamptz', { name: 'updated_at', nullable: true })
   updatedAt: string | Date;
 
   @BeforeInsert()

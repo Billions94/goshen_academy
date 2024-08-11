@@ -1,5 +1,5 @@
+import { Request } from 'express';
 import { Inject } from 'typescript-ioc';
-import { StudentService } from '../service/studentService';
 import {
   ContextRequest,
   DELETE,
@@ -9,12 +9,12 @@ import {
   PathParam,
   POST,
 } from 'typescript-rest';
+import { TokenResponse } from '../../../auth/interface';
+import { LoginInput } from '../../../interfaces';
+import { DataResponse, DeleteResponse } from '../../../interfaces/response';
 import { Student } from '../entity/student';
 import { StudentInput } from '../interface';
-import { DataResponse, DeleteResponse } from '../../../interfaces/response';
-import { LoginInput } from '../../../interfaces';
-import { TokenResponse } from '../../../auth/interface';
-import { Request } from 'express';
+import { StudentService } from '../service/studentService';
 
 @Path('api/students')
 export class StudentController {
@@ -38,13 +38,20 @@ export class StudentController {
     return this.studentService.getStudents();
   }
 
-  /*
   @GET
-  @Path('/:id')
-  async getStudent(@PathParam('id') id: number): Promise<DataResponse> {
-    return this.studentService.getStudent(id);
+  @Path(':id')
+  async getStudent(@PathParam('id') id: string): Promise<DataResponse> {
+    return this.studentService.getStudent(parseInt(id));
   }
-*/
+
+  @GET
+  @Path('student-id/:studentId')
+  async getStudentByStudentId(
+    @PathParam('studentId') studentId: string
+  ): Promise<DataResponse> {
+    console.log({ studentId });
+    return this.studentService.getStudentByStudentId(studentId);
+  }
 
   @PATCH
   @Path(':id')

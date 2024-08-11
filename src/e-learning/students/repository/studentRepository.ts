@@ -1,8 +1,8 @@
 import { Service } from 'typedi';
 import { Repository } from 'typeorm';
-import { Student } from '../entity/student';
 import { DataBase } from '../../../db/init';
-import { StudentInput } from '../interface';
+import { Student } from '../entity/student';
+import { SqlRawQueryMapperStudent, StudentInput } from '../interface';
 import { studentResponseMapper } from '../mapper/studentResponseMapper';
 
 @Service()
@@ -31,17 +31,38 @@ export class StudentRepository extends Repository<Student> {
     await this.delete({ id });
   }
 
+  async getByStudentId(
+    studentId: string
+  ): Promise<SqlRawQueryMapperStudent | null> {
+    const queryBuilder = this.createQueryBuilder('student');
+
+    return await queryBuilder
+      .where('student.student_id = :student_id ', {
+        student_id: studentId,
+      })
+      .select(
+        `student.id,
+        student.first_name,
+        student.last_name,
+        student.nationality,
+        student.created_at
+        `
+      )
+      .execute()
+      .then((raw) => ({ ...[raw][0] }[0]));
+  }
+
   async updateStudent(
     id: number,
     updateInput: StudentInput,
     student?: Student
   ): Promise<Partial<Student>> {
-    await this.createQueryBuilder()
+    this.createQueryBuilder()
       .update(await this.findById(id))
       .set({
         firstName: updateInput.firstName,
         lastName: updateInput.lastName,
-        age: updateInput.age,
+        dateOfBirth: updateInput.dateOfBirth,
         email: updateInput.email,
         address: updateInput.address,
         nationality: updateInput.nationality,
@@ -50,8 +71,7 @@ export class StudentRepository extends Repository<Student> {
       .where({ id })
       .execute();
 
-    const updatedStudent = await this.findById(id);
-    return studentResponseMapper(updatedStudent);
+    return studentResponseMapper(await this.findById(id));
   }
 
   async isExistByEmail(email: string): Promise<Student | null> {

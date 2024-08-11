@@ -1,16 +1,16 @@
-import * as process from 'process';
-import jwtService from 'jsonwebtoken';
 import bcryptService from 'bcrypt';
+import jwtService from 'jsonwebtoken';
+import * as process from 'process';
 import { Service } from 'typedi';
 import { Inject } from 'typescript-ioc';
+import { Student } from '../e-learning/students/entity/student';
+import { StudentRepository } from '../e-learning/students/repository/studentRepository';
 import {
   JwtPayload,
   RefreshTokenResponse,
   TokenResponse,
   VerifyRefreshTokenResponse,
 } from './interface';
-import { StudentRepository } from '../e-learning/students/repository/studentRepository';
-import { Student } from '../e-learning/students/entity/student';
 
 @Service()
 export class JwtAuthService {

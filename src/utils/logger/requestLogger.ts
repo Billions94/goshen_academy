@@ -1,7 +1,7 @@
-import { RequestHandler } from 'express';
-import Logger from './logger';
 import dotenv from 'dotenv';
+import { RequestHandler } from 'express';
 import * as process from 'process';
+import Logger from './logger';
 dotenv.config();
 
 const Requestlogger: RequestHandler = (req, _res, next) => {

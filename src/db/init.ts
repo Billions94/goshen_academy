@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
-import Logger from '../utils/logger/logger';
 import ORMConfig from '../ormConfig';
+import Logger from '../utils/logger/logger';
 
 export class DataBase {
   public static readonly dataSource = new DataSource(ORMConfig);
@@ -14,6 +14,8 @@ export class DataBase {
       }
     } catch ({ message }) {
       Logger.error(message);
+      Logger.error('Failed to connect to database');
+      process.exit(1);
     }
   }
 }

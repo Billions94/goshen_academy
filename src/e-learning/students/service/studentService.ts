@@ -1,18 +1,21 @@
 import { Service } from 'typedi';
-import { StudentServiceInterface } from './interface';
-import { Student } from '../entity/student';
 import { Inject } from 'typescript-ioc';
-import { StudentRepository } from '../repository/studentRepository';
-import { StudentInput } from '../interface';
-import { DeleteResponse, DataResponse } from '../../../interfaces/response';
+import { CredentialManager } from '../../../auth/credential/credentialsManager';
+import { TokenResponse } from '../../../auth/interface';
+import { JwtAuthService } from '../../../auth/jwtService';
+import { LoginInput } from '../../../interfaces';
+import { DataResponse, DeleteResponse } from '../../../interfaces/response';
 import Logger from '../../../utils/logger/logger';
 import { ErrorMapper } from '../../../utils/mapper/errorMapper';
-import { TokenResponse } from '../../../auth/interface';
-import { LoginInput } from '../../../interfaces';
-import { JwtAuthService } from '../../../auth/jwtService';
-import { CredentialManager } from '../../../auth/credential/credentialsManager';
-import { studentResponseMapper } from '../mapper/studentResponseMapper';
 import { Validator } from '../../../utils/validator/validator';
+import { Student } from '../entity/student';
+import { SqlRawQueryMapperStudent, StudentInput } from '../interface';
+import {
+  sqlRawQueryMapper,
+  studentResponseMapper,
+} from '../mapper/studentResponseMapper';
+import { StudentRepository } from '../repository/studentRepository';
+import { StudentServiceInterface } from './interface';
 
 @Service()
 export class StudentService implements StudentServiceInterface {
@@ -29,10 +32,13 @@ export class StudentService implements StudentServiceInterface {
 
       const student = this.studentRepository.create(input);
       const hashPassword = await CredentialManager.hashPassword(input.password);
+      console.log({ hashPassword });
       student.setPassword(hashPassword);
 
       await this.studentRepository.save(student);
       const studentId = student.studentId;
+
+      console.log('', studentId);
 
       const { accessToken, refreshToken } =
         await this.jwtAuthService.tokenGenerator(student);
@@ -91,7 +97,22 @@ export class StudentService implements StudentServiceInterface {
   async getStudent(id: number): Promise<DataResponse> {
     try {
       const student = studentResponseMapper(
-        <Student>await this.studentRepository.findById(id)
+        await this.studentRepository.findById(id)
+      );
+
+      return { status: 200, data: { student } };
+    } catch ({ message }) {
+      Logger.error(message);
+      return this.errorResponseMapper.throw(message);
+    }
+  }
+
+  async getStudentByStudentId(studentId: string): Promise<DataResponse> {
+    try {
+      const student = sqlRawQueryMapper(
+        <SqlRawQueryMapperStudent>(
+          await this.studentRepository.getByStudentId(studentId)
+        )
       );
 
       return { status: 200, data: { student } };
