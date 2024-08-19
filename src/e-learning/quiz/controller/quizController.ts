@@ -1,43 +1,55 @@
-import { DELETE, GET, PATCH, Path, PathParam, POST } from 'typescript-rest';
-import { Inject } from 'typescript-ioc';
-import { QuizService } from '../service/quizService';
-import { DataResponse, DeleteResponse } from '../../../interfaces/response';
+import {
+  Authorized,
+  Body,
+  Delete,
+  Get,
+  JsonController,
+  Param,
+  Patch,
+  Post,
+  QueryParams,
+} from 'routing-controllers';
+import { Inject, Service } from 'typedi';
+import { Order, Pagination, Paging } from '../../../e-learning/interfaces';
+import { DataResponse, DeleteResponse } from '../../interfaces/response';
 import { QuizInput } from '../interface';
-import { Quiz } from '../entity/quiz';
+import { QuizService } from '../service/quizService';
 
-@Path('/api/quiz')
+@Service()
+@JsonController('/quizzes')
 export class QuizController {
-  @Inject
+  @Inject()
   private readonly quizService: QuizService;
 
-  @POST
-  async createQuiz(input: QuizInput): Promise<DataResponse> {
+  @Authorized()
+  @Post()
+  async createQuiz(@Body() input: QuizInput): Promise<DataResponse> {
     return this.quizService.createQuiz(input);
   }
 
-  @GET
-  async getAllQuiz(): Promise<Quiz[]> {
-    return await this.quizService.getAllQuiz();
+  @Get()
+  async getAllQuiz(@QueryParams() params: Order & Paging): Promise<Pagination> {
+    const { page, limit, key = 'id', value = 'DESC' } = params;
+    return await this.quizService.getAllQuiz({ page, limit }, { key, value });
   }
 
-  @GET
-  @Path(':id')
-  async getQuiz(@PathParam('id') id: number): Promise<DataResponse> {
+  @Get('/:id')
+  async getQuiz(@Param('id') id: number): Promise<DataResponse> {
     return this.quizService.getQuiz(id);
   }
 
-  @PATCH
-  @Path(':id')
+  @Authorized()
+  @Patch('/:id')
   async updateQuiz(
-    @PathParam('id') id: number,
-    input: QuizInput
+    @Param('id') id: number,
+    @Body() input: QuizInput
   ): Promise<DataResponse> {
     return this.quizService.updateQuiz(id, input);
   }
 
-  @DELETE
-  @Path(':id')
-  async deleteQuiz(id: number): Promise<DeleteResponse> {
+  @Authorized()
+  @Delete('/:id')
+  async deleteQuiz(@Param('id') id: number): Promise<DeleteResponse> {
     return this.quizService.deleteQuiz(id);
   }
 }

@@ -1,12 +1,18 @@
 import { Service } from 'typedi';
-import { ErrorResponse } from '../../interfaces';
+import { ErrorResponse } from '../../e-learning/interfaces';
 
 @Service()
-export class ErrorMapper {
+export class ErrorMapper extends Error {
+  constructor(message: string) {
+    super(message);
+
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
+
   private static readonly POSTGRES_UNIQUE_KEY_ERROR =
     'duplicate key value violates unique constraint';
 
-  throw = (message: string, status?: number): ErrorResponse => {
+  throw(message: string, status?: number): ErrorResponse {
     if (message.includes(ErrorMapper.POSTGRES_UNIQUE_KEY_ERROR)) {
       message = 'Email address already exists!';
     }
@@ -16,5 +22,5 @@ export class ErrorMapper {
       data: null,
       error: { message },
     };
-  };
+  }
 }

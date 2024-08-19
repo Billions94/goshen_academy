@@ -1,13 +1,12 @@
-import { Service } from 'typedi';
-import { Inject } from 'typescript-ioc';
+import { Inject, Service } from 'typedi';
 import { CredentialManager } from '../../../auth/credential/credentialsManager';
 import { TokenResponse } from '../../../auth/interface';
 import { JwtAuthService } from '../../../auth/jwtService';
-import { LoginInput } from '../../../interfaces';
-import { DataResponse, DeleteResponse } from '../../../interfaces/response';
 import Logger from '../../../utils/logger/logger';
 import { ErrorMapper } from '../../../utils/mapper/errorMapper';
 import { Validator } from '../../../utils/validator/validator';
+import { LoginInput, Order, Pagination, Paging } from '../../interfaces';
+import { DataResponse, DeleteResponse } from '../../interfaces/response';
 import { Student } from '../entity/student';
 import { SqlRawQueryMapperStudent, StudentInput } from '../interface';
 import {
@@ -19,11 +18,13 @@ import { StudentServiceInterface } from './interface';
 
 @Service()
 export class StudentService implements StudentServiceInterface {
-  @Inject
+  @Inject()
   private readonly jwtAuthService: JwtAuthService;
-  @Inject
+  @Inject()
+  private readonly credentialManager: CredentialManager;
+  @Inject()
   private readonly studentRepository: StudentRepository;
-  @Inject
+  @Inject()
   private readonly errorResponseMapper: ErrorMapper;
 
   async createStudent(input: StudentInput): Promise<DataResponse> {
@@ -31,14 +32,13 @@ export class StudentService implements StudentServiceInterface {
       Validator.validateRegisterInput(input);
 
       const student = this.studentRepository.create(input);
-      const hashPassword = await CredentialManager.hashPassword(input.password);
-      console.log({ hashPassword });
+      const hashPassword = await this.credentialManager.hashPassword(
+        input.password
+      );
       student.setPassword(hashPassword);
 
       await this.studentRepository.save(student);
-      const studentId = student.studentId;
-
-      console.log('', studentId);
+      const studentId = student.id;
 
       const { accessToken, refreshToken } =
         await this.jwtAuthService.tokenGenerator(student);
@@ -59,7 +59,7 @@ export class StudentService implements StudentServiceInterface {
     password,
   }: LoginInput): Promise<Partial<TokenResponse>> {
     try {
-      const student = await CredentialManager.verifyCredentials(
+      const student = await this.credentialManager.verifyCredentials(
         email,
         password
       );
@@ -67,8 +67,7 @@ export class StudentService implements StudentServiceInterface {
       if (student) {
         const { accessToken, refreshToken } =
           await this.jwtAuthService.tokenGenerator(student);
-
-        await CredentialManager.hashRefreshToken(refreshToken, student);
+        await this.credentialManager.hashRefreshToken(refreshToken, student);
 
         return { accessToken, refreshToken };
       } else {
@@ -82,16 +81,55 @@ export class StudentService implements StudentServiceInterface {
     }
   }
 
-  async getStudents(): Promise<Partial<Student[]>> {
-    const students = (await this.studentRepository
-      .getStudents()
-      .then((students) => students.map(studentResponseMapper))) as Partial<
-      Student[]
-    >;
+  async getStudents(
+    query?: Paging,
+    order?: Order
+  ): Promise<Partial<Pagination>> {
+    try {
+      if (query?.limit && query.page && order?.key && order?.value) {
+        const { limit, page } = query;
 
-    if (students) return students;
+        return {
+          limit: limit,
+          page: page,
+          results: await this.mapStudents({ query, order }),
+        };
+      } else {
+        return {
+          limit: 0,
+          page: 0,
+          results: await this.mapStudents(),
+        };
+      }
+    } catch ({ message }) {
+      Logger.error(message);
+      return {
+        limit: 0,
+        page: 0,
+        results: [],
+      };
+    }
+  }
 
-    return [];
+  async mapStudents(options?: { query: Paging; order: Order }) {
+    return options
+      ? ((await this.studentRepository
+          .getStudentsAndPaginate(
+            {
+              key: options.order.key,
+              value: options.order.value,
+            },
+            options.query.limit,
+            options.query.page
+          )
+          .then((students) => students.map(studentResponseMapper))) as Partial<
+          Student[]
+        >)
+      : ((await this.studentRepository
+          .find()
+          .then((students) => students.map(studentResponseMapper))) as Partial<
+          Student[]
+        >);
   }
 
   async getStudent(id: number): Promise<DataResponse> {
@@ -124,7 +162,7 @@ export class StudentService implements StudentServiceInterface {
 
   async updateStudent(
     id: number,
-    studentInput: StudentInput,
+    studentInput: Partial<StudentInput>,
     studentFromReq: Student
   ): Promise<Partial<DataResponse>> {
     try {

@@ -1,5 +1,6 @@
 version: '3.8'
 services:
+  # PostgreSQL service
   db:
     container_name: pg_container
     image: postgres
@@ -7,15 +8,25 @@ services:
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
-      POSTGRES_DB: goshen_db
+      POSTGRES_DB: postgres
+      POSTGRES_HOST_AUTH_METHOD: trust
     ports:
-      - "5432:5432"
-  pgadmin:
-    container_name: pgadmin4_container_
-    image: dpage/pgadmin4:6
-    restart: always
+      - '0.0.0.0:5432:5432'
+
+  # Backend Api service
+  api:
+    build: .
+    ports:
+      - '8081:8080'
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    command: npm run start:docker
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: root
-    ports:
-      - "5050:80"
+      PORT: 8080
+    restart: always
+    depends_on:
+      - db
+
+networks:
+  common_network:

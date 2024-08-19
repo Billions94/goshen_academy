@@ -1,3 +1,4 @@
+import { Lesson } from '../../../e-learning/lessons/lesson/entity/lesson';
 import { Student } from '../entity/student';
 
 export interface StudentInput
@@ -13,6 +14,7 @@ export interface SqlRawQueryMapperStudent {
   last_name: string;
   nationality: string;
   address: string | null;
+  lessonList: Lesson[];
   date_of_birth: Date;
   email: string;
   password: string | null;

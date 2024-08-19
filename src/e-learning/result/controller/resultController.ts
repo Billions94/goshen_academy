@@ -1,37 +1,47 @@
-import { DELETE, GET, PATCH, Path, PathParam, POST } from 'typescript-rest';
-import { Inject } from 'typescript-ioc';
-import { ResultService } from '../service/resultService';
+import {
+  Authorized,
+  Body,
+  Delete,
+  Get,
+  JsonController,
+  Param,
+  Patch,
+  Post,
+} from 'routing-controllers';
+import { Inject, Service } from 'typedi';
+import { DataResponse, DeleteResponse } from '../../interfaces/response';
 import { ResultInput } from '../interface';
-import { DataResponse, DeleteResponse } from '../../../interfaces/response';
+import { ResultService } from '../service/resultService';
 
-@Path('/api/results')
+@Service()
+@JsonController('/results')
 export class ResultController {
-  @Inject
+  @Inject()
   private readonly resultService: ResultService;
 
-  @POST
-  async createResult(input: ResultInput): Promise<DataResponse> {
+  @Authorized()
+  @Post()
+  async createResult(@Body() input: ResultInput): Promise<DataResponse> {
     return this.resultService.createResult(input);
   }
 
-  @GET
-  @Path(':id')
-  async getResult(@PathParam('id') id: number): Promise<DataResponse> {
+  @Get('/:id')
+  async getResult(@Param('id') id: number): Promise<DataResponse> {
     return this.resultService.getResult(id);
   }
 
-  @PATCH
-  @Path(':id')
+  @Authorized()
+  @Patch('/:id')
   async updateResult(
-    @PathParam('id') id: number,
-    input: ResultInput
+    @Param('id') id: number,
+    @Body() input: ResultInput
   ): Promise<DataResponse> {
     return this.resultService.updateResult(id, input);
   }
 
-  @DELETE
-  @Path(':id')
-  async deleteResult(id: number): Promise<DeleteResponse> {
+  @Authorized()
+  @Delete('/:id')
+  async deleteResult(@Param('id') id: number): Promise<DeleteResponse> {
     return this.resultService.deleteResult(id);
   }
 }

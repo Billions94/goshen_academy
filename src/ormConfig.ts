@@ -1,7 +1,7 @@
-import { DataSourceOptions } from 'typeorm';
-import path from 'path';
 import dotenv from 'dotenv';
+import path from 'path';
 import * as process from 'process';
+import { DataSourceOptions } from 'typeorm';
 dotenv.config();
 
 const isCompiled = path.extname(__filename).includes('js');
@@ -12,11 +12,12 @@ const ORMConfig = {
   port: parseInt(<string>process.env.DB_PORT),
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME || 'typeorm',
+  database: process.env.DB_NAME ?? 'typeorm',
   logging: !process.env.DB_NO_LOGS,
   autoReconnect: true,
   reconnectTries: Number.MAX_VALUE,
   reconnectInterval: 2000,
+  cache: true,
   entities: [
     `src/e-learning/students/entity/**/*.${isCompiled ? 'js' : 'ts'}`,
     `src/e-learning/lessons/lesson/entity/**/*.${isCompiled ? 'js' : 'ts'}`,

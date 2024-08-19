@@ -1,17 +1,16 @@
-import { Service } from 'typedi';
-import { ResultServiceInterface } from './interface';
-import { ResultInput } from '../interface';
-import { DataResponse, DeleteResponse } from '../../../interfaces/response';
+import { Inject, Service } from 'typedi';
 import Logger from '../../../utils/logger/logger';
-import { Inject } from 'typescript-ioc';
-import { ResultRepository } from '../repository/resultRepository';
 import { ErrorMapper } from '../../../utils/mapper/errorMapper';
+import { DataResponse, DeleteResponse } from '../../interfaces/response';
+import { ResultInput } from '../interface';
+import { ResultRepository } from '../repository/resultRepository';
+import { ResultServiceInterface } from './interface';
 
 @Service()
 export class ResultService implements ResultServiceInterface {
-  @Inject
+  @Inject()
   private readonly resultRepository: ResultRepository;
-  @Inject
+  @Inject()
   private readonly errorResponseMapper: ErrorMapper;
 
   async createResult(input: ResultInput): Promise<DataResponse> {

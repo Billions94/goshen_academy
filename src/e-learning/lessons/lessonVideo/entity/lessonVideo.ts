@@ -12,10 +12,13 @@ export class LessonVideo {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Lesson, (lesson) => lesson, { cascade: true })
+  @Column('varchar', { name: 'title', nullable: true })
+  title: string;
+
+  @Column('varchar', { name: 'url', nullable: false })
+  url: string;
+
+  @ManyToOne(() => Lesson, (lesson) => lesson, { cascade: true, eager: true })
   @JoinColumn({ name: 'lesson_id' })
   lesson: Lesson;
-
-  @Column('varchar', { name: 'description', nullable: false })
-  videoFile: string;
 }

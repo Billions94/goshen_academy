@@ -1,8 +1,9 @@
 import { Service } from 'typedi';
 import { Repository } from 'typeorm';
 import { DataBase } from '../../../db/init';
+import { addPagination } from '../../../utils/helper/add-pagination';
 import { Student } from '../entity/student';
-import { SqlRawQueryMapperStudent, StudentInput } from '../interface';
+import { Order, SqlRawQueryMapperStudent, StudentInput } from '../interface';
 import { studentResponseMapper } from '../mapper/studentResponseMapper';
 
 @Service()
@@ -11,8 +12,30 @@ export class StudentRepository extends Repository<Student> {
     super(Student, DataBase.dataSource.createEntityManager());
   }
 
-  async getStudents(): Promise<Student[]> {
-    return await this.find();
+  /**
+   * Retrieves a paginated list of students, ordered by the provided criteria.
+   *
+   * @param order - The order criteria, containing the key and value to sort by.
+   * @param limit - The maximum number of students to return per page.
+   * @param skip - The number of students to skip for pagination.
+   *
+   * @returns A Promise that resolves to an array of Student objects.
+   *
+   * @remarks
+   * This function uses TypeORM's QueryBuilder to construct a query that retrieves students,
+   * applies pagination, sorting, and caching. It also eagerly loads the related lessons for each student.
+   */
+  async getStudentsAndPaginate(
+    order: Order,
+    limit: number,
+    skip: number
+  ): Promise<Student[]> {
+    const queryBuilder = this.createQueryBuilder('student');
+    return await addPagination(queryBuilder, { limit, page: skip })
+      .leftJoinAndSelect('student.lessons', 'lessons')
+      .orderBy(`${order.key}`, `${order.value}`)
+      .cache(25000)
+      .getMany();
   }
 
   async findByEmail(email: string): Promise<Student | null> {
@@ -54,22 +77,37 @@ export class StudentRepository extends Repository<Student> {
 
   async updateStudent(
     id: number,
-    updateInput: StudentInput,
-    student?: Student
+    updateInput: Partial<StudentInput>,
+    student: Student
   ): Promise<Partial<Student>> {
-    this.createQueryBuilder()
-      .update(await this.findById(id))
-      .set({
-        firstName: updateInput.firstName,
-        lastName: updateInput.lastName,
-        dateOfBirth: updateInput.dateOfBirth,
-        email: updateInput.email,
-        address: updateInput.address,
-        nationality: updateInput.nationality,
-        updatedAt: new Date(),
-      })
-      .where({ id })
-      .execute();
+    if (student.id !== id && student.isAdmin)
+      await this.createQueryBuilder()
+        .update(await this.findById(id))
+        .set({
+          firstName: updateInput.firstName,
+          lastName: updateInput.lastName,
+          dateOfBirth: updateInput.dateOfBirth,
+          email: updateInput.email,
+          address: updateInput.address,
+          nationality: updateInput.nationality,
+          updatedAt: new Date(),
+        })
+        .where({ id })
+        .execute();
+    else
+      await this.createQueryBuilder()
+        .update(student)
+        .set({
+          firstName: updateInput.firstName,
+          lastName: updateInput.lastName,
+          dateOfBirth: updateInput.dateOfBirth,
+          email: updateInput.email,
+          address: updateInput.address,
+          nationality: updateInput.nationality,
+          updatedAt: new Date(),
+        })
+        .where({ id: student.id })
+        .execute();
 
     return studentResponseMapper(await this.findById(id));
   }

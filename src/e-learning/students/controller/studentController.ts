@@ -1,71 +1,73 @@
-import { Request } from 'express';
-import { Inject } from 'typescript-ioc';
 import {
-  ContextRequest,
-  DELETE,
-  GET,
-  PATCH,
-  Path,
-  PathParam,
-  POST,
-} from 'typescript-rest';
+  Body,
+  CurrentUser,
+  Delete,
+  Get,
+  JsonController,
+  Param,
+  Patch,
+  Post,
+  QueryParams,
+} from 'routing-controllers';
+import { Inject, Service } from 'typedi';
 import { TokenResponse } from '../../../auth/interface';
-import { LoginInput } from '../../../interfaces';
-import { DataResponse, DeleteResponse } from '../../../interfaces/response';
+import { LoginInput, Order, Pagination, Paging } from '../../interfaces';
+import { DataResponse, DeleteResponse } from '../../interfaces/response';
 import { Student } from '../entity/student';
 import { StudentInput } from '../interface';
+import { studentColumnMapper } from '../mapper/studentColumnKeyMapper';
 import { StudentService } from '../service/studentService';
 
-@Path('api/students')
+@Service()
+@JsonController('/students')
 export class StudentController {
-  @Inject
+  @Inject()
   private readonly studentService: StudentService;
 
-  @POST
-  @Path('register')
-  async createStudent(input: StudentInput): Promise<Partial<DataResponse>> {
-    return this.studentService.createStudent(input);
+  @Get()
+  async getStudents(
+    @QueryParams() params: Order & Paging
+  ): Promise<Partial<Pagination>> {
+    const { page, limit, key: k = 'student.name', value = 'DESC' } = params;
+    const key = studentColumnMapper[k];
+    return this.studentService.getStudents({ page, limit }, { key, value });
   }
 
-  @POST
-  @Path('login')
-  async login(input: LoginInput): Promise<Partial<TokenResponse>> {
-    return this.studentService.login(input);
-  }
-
-  @GET
-  async getStudents(): Promise<Partial<Student[]>> {
-    return this.studentService.getStudents();
-  }
-
-  @GET
-  @Path(':id')
-  async getStudent(@PathParam('id') id: string): Promise<DataResponse> {
+  @Get('/:id')
+  async getStudent(@Param('id') id: string): Promise<DataResponse> {
     return this.studentService.getStudent(parseInt(id));
   }
 
-  @GET
-  @Path('student-id/:studentId')
+  @Get('/student-id/:studentId')
   async getStudentByStudentId(
-    @PathParam('studentId') studentId: string
+    @Param('studentId') studentId: string
   ): Promise<DataResponse> {
-    console.log({ studentId });
     return this.studentService.getStudentByStudentId(studentId);
   }
 
-  @PATCH
-  @Path(':id')
-  async updateStudent(
-    @PathParam('id') id: number,
-    @ContextRequest { user }: Request,
-    input: StudentInput
+  @Post('/register')
+  async createStudent(
+    @Body() input: StudentInput
   ): Promise<Partial<DataResponse>> {
-    return this.studentService.updateStudent(id, input, <Student>user);
+    return this.studentService.createStudent(input);
   }
 
-  @DELETE
-  @Path(':id')
-  async deleteStudent(@PathParam('id') id: number): Promise<DeleteResponse> {
+  @Post('/login')
+  async login(@Body() input: LoginInput): Promise<Partial<TokenResponse>> {
+    return this.studentService.login(input);
+  }
+
+  @Patch('/:id')
+  async updateStudent(
+    @Param('id') id: number,
+    @CurrentUser() student: Student,
+    @Body() input: Partial<StudentInput>
+  ): Promise<Partial<DataResponse>> {
+    return this.studentService.updateStudent(id, input, student);
+  }
+
+  @Delete('/:id')
+  async deleteStudent(@Param('id') id: number): Promise<DeleteResponse> {
     return this.studentService.deleteStudent(id);
   }
 }

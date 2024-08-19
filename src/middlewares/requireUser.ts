@@ -1,9 +1,11 @@
-import { RequestHandler } from 'express';
+import { NextFunction, Request, Response } from 'express';
+import { ExpressMiddlewareInterface, Middleware } from 'routing-controllers';
 import { Service } from 'typedi';
 
 @Service()
-export class RequireUser {
-  init: RequestHandler = (req, res, next) => {
+@Middleware({ type: 'before' })
+export class RequireUser implements ExpressMiddlewareInterface {
+  use(req: Request, res: Response, next: NextFunction) {
     const user = req.user;
 
     if (
@@ -19,5 +21,5 @@ export class RequireUser {
     }
 
     return next();
-  };
+  }
 }

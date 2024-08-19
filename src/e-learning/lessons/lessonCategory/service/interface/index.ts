@@ -1,8 +1,5 @@
-import { LessonCategoryInput } from '../../../interface';
-import {
-  DataResponse,
-  DeleteResponse,
-} from '../../../../../interfaces/response';
+import { DataResponse, DeleteResponse } from '../../../../interfaces/response';
+import { LessonCategoryInput } from '../../../lessonCategory/interface';
 import { LessonCategory } from '../../entity/lessonCategory';
 
 export interface LessonCategoryServiceInterface {

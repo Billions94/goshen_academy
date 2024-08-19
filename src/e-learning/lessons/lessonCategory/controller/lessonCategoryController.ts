@@ -1,42 +1,55 @@
-import { DELETE, GET, PATCH, Path, PathParam, POST } from 'typescript-rest';
-import { Inject } from 'typescript-ioc';
-import { LessonCategoryService } from '../service/lessonCategoryService';
-import { LessonCategoryInput } from '../../interface';
-import { DataResponse, DeleteResponse } from '../../../../interfaces/response';
+import {
+  Authorized,
+  Body,
+  Delete,
+  Get,
+  JsonController,
+  Param,
+  Patch,
+  Post,
+} from 'routing-controllers';
+import { Inject, Service } from 'typedi';
+import { DataResponse, DeleteResponse } from '../../../interfaces/response';
+import { LessonCategoryInput } from '../../lessonCategory/interface';
 import { LessonCategory } from '../entity/lessonCategory';
+import { LessonCategoryService } from '../service/lessonCategoryService';
 
-@Path('api/lesson-categories')
+@Service()
+@JsonController('/lesson-categories')
 export class LessonCategoryController {
-  @Inject
+  @Inject()
   private readonly categoryService: LessonCategoryService;
 
-  @POST
-  async createLesson(input: LessonCategoryInput): Promise<DataResponse> {
+  @Authorized()
+  @Post()
+  async createLesson(
+    @Body() input: LessonCategoryInput
+  ): Promise<DataResponse> {
     return this.categoryService.createLessonCategory(input);
   }
 
-  @GET
+  @Get()
   async getLessonCategories(): Promise<LessonCategory[]> {
     return this.categoryService.getLessonCategories();
   }
 
-  @GET
-  @Path(':id')
-  async getLessonCategory(@PathParam('id') id: number): Promise<DataResponse> {
+  @Get('/:id')
+  async getLessonCategory(@Param('id') id: number): Promise<DataResponse> {
     return this.categoryService.getLessonCategory(id);
   }
 
-  @PATCH
-  @Path(':id')
+  @Authorized()
+  @Patch('/:id')
   async updateLesson(
-    @PathParam('id') id: number,
-    input: LessonCategoryInput
+    @Param('id') id: number,
+    @Body() input: LessonCategoryInput
   ): Promise<DataResponse> {
     return this.categoryService.updateLessonCategory(id, input);
   }
 
-  @DELETE
-  async deleteLesson(@PathParam('id') id: number): Promise<DeleteResponse> {
+  @Authorized()
+  @Delete('/:id')
+  async deleteLesson(@Param('id') id: number): Promise<DeleteResponse> {
     return this.categoryService.deleteLessonCategory(id);
   }
 }

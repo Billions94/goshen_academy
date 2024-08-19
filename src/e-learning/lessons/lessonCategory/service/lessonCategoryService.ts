@@ -1,18 +1,17 @@
-import { Service } from 'typedi';
-import { LessonCategoryServiceInterface } from './interface';
-import { Inject } from 'typescript-ioc';
-import { LessonCategoryRepository } from '../repository/lessonCategoryRepository';
-import { LessonCategoryInput } from '../../interface';
-import { DataResponse, DeleteResponse } from '../../../../interfaces/response';
-import { LessonCategory } from '../entity/lessonCategory';
-import { ErrorMapper } from '../../../../utils/mapper/errorMapper';
+import { Inject, Service } from 'typedi';
 import Logger from '../../../../utils/logger/logger';
+import { ErrorMapper } from '../../../../utils/mapper/errorMapper';
+import { DataResponse, DeleteResponse } from '../../../interfaces/response';
+import { LessonCategoryInput } from '../../lessonCategory/interface';
+import { LessonCategory } from '../entity/lessonCategory';
+import { LessonCategoryRepository } from '../repository/lessonCategoryRepository';
+import { LessonCategoryServiceInterface } from './interface';
 
 @Service()
 export class LessonCategoryService implements LessonCategoryServiceInterface {
-  @Inject
+  @Inject()
   private readonly lessonCategoryRepository: LessonCategoryRepository;
-  @Inject
+  @Inject()
   private readonly customErrorResponse: ErrorMapper;
 
   async createLessonCategory(
@@ -30,7 +29,6 @@ export class LessonCategoryService implements LessonCategoryServiceInterface {
   }
 
   async getLessonCategories(): Promise<LessonCategory[]> {
-    console.log('In here');
     return await this.lessonCategoryRepository.find();
   }
 
@@ -50,7 +48,7 @@ export class LessonCategoryService implements LessonCategoryServiceInterface {
   ): Promise<DataResponse> {
     try {
       await this.lessonCategoryRepository.update(id, input);
-      const category = this.lessonCategoryRepository.findById(id);
+      const category = await this.lessonCategoryRepository.findById(id);
 
       return { status: 203, data: { category } };
     } catch ({ message }) {

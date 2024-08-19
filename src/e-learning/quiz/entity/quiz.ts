@@ -2,7 +2,7 @@ import {
   Column,
   Entity,
   JoinColumn,
-  OneToOne,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Lesson } from '../../lessons/lesson/entity/lesson';
@@ -30,7 +30,10 @@ export class Quiz {
   @Column('text', { name: 'correct_answer', nullable: false })
   correctAnswer: string;
 
-  @OneToOne(() => Lesson, { eager: true, cascade: true })
+  @ManyToOne(() => Lesson, {
+    eager: true,
+    cascade: true,
+  })
   @JoinColumn({ name: 'lesson_id' })
   lesson: Lesson;
 }

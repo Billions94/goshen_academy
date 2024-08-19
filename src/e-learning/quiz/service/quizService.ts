@@ -1,18 +1,17 @@
-import { Service } from 'typedi';
-import { QuizServiceInterface } from './interface';
-import { DataResponse, DeleteResponse } from '../../../interfaces/response';
-import { Quiz } from '../entity/quiz';
+import { Inject, Service } from 'typedi';
+import { Order, Pagination, Paging } from '../../../e-learning/interfaces';
 import Logger from '../../../utils/logger/logger';
-import { Inject } from 'typescript-ioc';
-import { QuizRepository } from '../repository/quizRepository';
-import { QuizInput } from '../interface';
 import { ErrorMapper } from '../../../utils/mapper/errorMapper';
+import { DataResponse, DeleteResponse } from '../../interfaces/response';
+import { QuizInput } from '../interface';
+import { QuizRepository } from '../repository/quizRepository';
+import { QuizServiceInterface } from './interface';
 
 @Service()
 export class QuizService implements QuizServiceInterface {
-  @Inject
+  @Inject()
   private readonly quizRepository: QuizRepository;
-  @Inject
+  @Inject()
   private readonly errorResponseMapper: ErrorMapper;
 
   async createQuiz(input: QuizInput): Promise<DataResponse> {
@@ -28,8 +27,44 @@ export class QuizService implements QuizServiceInterface {
     }
   }
 
-  async getAllQuiz(): Promise<Quiz[]> {
-    return this.quizRepository.find();
+  async getAllQuiz(query?: Paging, order?: Order): Promise<Pagination> {
+    try {
+      if (query?.limit && query.page && order?.key && order?.value) {
+        const { limit, page } = query;
+
+        return {
+          limit: limit,
+          page: page,
+          results: await this.mapQuizzes({ query, order }),
+        };
+      } else {
+        return {
+          limit: 0,
+          page: 0,
+          results: await this.mapQuizzes(),
+        };
+      }
+    } catch ({ message }) {
+      Logger.error(message);
+      return {
+        limit: 0,
+        page: 0,
+        results: [],
+      };
+    }
+  }
+
+  async mapQuizzes(options?: { query: Paging; order: Order }) {
+    return options
+      ? await this.quizRepository.getQuizzesAndPaginate(
+          {
+            key: options.order.key,
+            value: options.order.value,
+          },
+          options.query.limit,
+          options.query.page
+        )
+      : await this.quizRepository.find();
   }
 
   async getQuiz(id: number): Promise<DataResponse> {
@@ -43,10 +78,13 @@ export class QuizService implements QuizServiceInterface {
     }
   }
 
-  async updateQuiz(id: number, input: QuizInput): Promise<DataResponse> {
+  async updateQuiz(
+    id: number,
+    input: Partial<QuizInput>
+  ): Promise<DataResponse> {
     try {
       await this.quizRepository.update(id, input);
-      const updatedQuiz = await this.quizRepository.getById(id);
+      const updatedQuiz = await this.quizRepository.updateQuiz(id, input);
 
       return { status: 203, data: { updatedQuiz } };
     } catch ({ message }) {

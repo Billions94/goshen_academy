@@ -1,45 +1,59 @@
-import { DELETE, GET, PATCH, Path, PathParam, POST } from 'typescript-rest';
-import { Inject } from 'typescript-ioc';
-import { LessonVideoService } from '../service/lessonVideoService';
-import { LessonVideoInput } from '../interface';
-import { DataResponse, DeleteResponse } from '../../../../interfaces/response';
+import {
+  Authorized,
+  Body,
+  Delete,
+  Get,
+  JsonController,
+  Param,
+  Patch,
+  Post,
+  UploadedFile,
+} from 'routing-controllers';
+import { Inject, Service } from 'typedi';
+import { MulterFile, multerOptions } from '../../../../utils/config/options';
+import { DataResponse, DeleteResponse } from '../../../interfaces/response';
 import { LessonVideo } from '../entity/lessonVideo';
+import { LessonVideoInput } from '../interface';
+import { LessonVideoService } from '../service/lessonVideoService';
 
-@Path('/api/lesson-videos')
+@Service()
+@JsonController('/lesson-videos')
 export class LessonVideoController {
-  @Inject
+  @Inject()
   private readonly lessonVideoService: LessonVideoService;
 
-  @POST
-  async createLessonVideo(input: LessonVideoInput): Promise<DataResponse> {
-    return this.lessonVideoService.createLessonVideo(input);
+  @Authorized()
+  @Post()
+  async createLessonVideo(
+    @UploadedFile('video', { options: multerOptions() }) video: MulterFile,
+    @Body() input: LessonVideoInput
+  ): Promise<DataResponse> {
+    return this.lessonVideoService.createLessonVideo(input, video);
   }
 
-  @GET
+  @Get()
   async getLessonVideos(): Promise<LessonVideo[]> {
     return this.lessonVideoService.getLessonVideos();
   }
 
-  @GET
-  @Path(':id')
-  async getLessonVideo(@PathParam('id') id: number): Promise<DataResponse> {
+  @Get('/:id')
+  async getLessonVideo(@Param('id') id: number): Promise<DataResponse> {
     return await this.lessonVideoService.getLessonVideo(id);
   }
 
-  @PATCH
-  @Path(':id')
+  @Authorized()
+  @Patch('/:id')
   async updateLessonVideo(
-    @PathParam('id') id: number,
-    input: LessonVideoInput
+    @Param('id') id: number,
+    @UploadedFile('video', { options: multerOptions() }) video: MulterFile,
+    @Body() input: LessonVideoInput
   ): Promise<DataResponse> {
-    return await this.lessonVideoService.updateLessonVideo(id, input);
+    return await this.lessonVideoService.updateLessonVideo(id, input, video);
   }
 
-  @DELETE
-  @Path(':id')
-  async deleteLessonVideo(
-    @PathParam('id') id: number
-  ): Promise<DeleteResponse> {
+  @Authorized()
+  @Delete('/:id')
+  async deleteLessonVideo(@Param('id') id: number): Promise<DeleteResponse> {
     return await this.lessonVideoService.deleteLessonVideo(id);
   }
 }

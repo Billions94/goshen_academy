@@ -3,15 +3,23 @@ import {
   Column,
   Entity,
   Index,
+  ManyToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Lesson } from '../../../e-learning/lessons/lesson/entity/lesson';
 
 @Entity({ name: 'student' })
 export class Student {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column('varchar', { name: 'student_id', length: 50, nullable: false })
+  @Index({ unique: true })
+  @Column('varchar', {
+    name: 'student_id',
+    length: 50,
+    nullable: false,
+    unique: true,
+  })
   studentId: string;
 
   @Column('varchar', { name: 'first_name', length: 50, nullable: false })
@@ -33,6 +41,9 @@ export class Student {
   @Column('varchar', { name: 'email', length: 50, nullable: true })
   email: string;
 
+  @ManyToMany(() => Lesson, (lesson) => lesson.students)
+  lessons: Lesson[];
+
   @Column('varchar', { name: 'password', length: 250, nullable: true })
   private password: string;
 
@@ -44,6 +55,9 @@ export class Student {
 
   @Column('timestamptz', { name: 'updated_at', nullable: true })
   updatedAt: string | Date;
+
+  @Column('boolean', { name: 'is_admin', nullable: true, default: false })
+  isAdmin: boolean;
 
   @BeforeInsert()
   setStudentId() {

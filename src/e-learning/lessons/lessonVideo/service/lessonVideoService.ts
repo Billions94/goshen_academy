@@ -1,23 +1,30 @@
-import { Service } from 'typedi';
-import { LessonVideoInterface } from './interface';
-import { Inject } from 'typescript-ioc';
-import { LessonVideoRepository } from '../repository/lessonVideoRepository';
-import { DataResponse, DeleteResponse } from '../../../../interfaces/response';
-import { LessonVideo } from '../entity/lessonVideo';
-import { ErrorMapper } from '../../../../utils/mapper/errorMapper';
+import { Inject, Service } from 'typedi';
+import { MulterFile } from '../../../../utils/config/options';
 import Logger from '../../../../utils/logger/logger';
+import { ErrorMapper } from '../../../../utils/mapper/errorMapper';
+import { DataResponse, DeleteResponse } from '../../../interfaces/response';
+import { LessonVideo } from '../entity/lessonVideo';
 import { LessonVideoInput } from '../interface';
+import { LessonVideoRepository } from '../repository/lessonVideoRepository';
+import { LessonVideoInterface } from './interface';
 
 @Service()
 export class LessonVideoService implements LessonVideoInterface {
-  @Inject
+  @Inject()
   private readonly lessonVideoRepository: LessonVideoRepository;
-  @Inject
+  @Inject()
   private readonly errorResponseMapper: ErrorMapper;
 
-  async createLessonVideo(input: LessonVideoInput): Promise<DataResponse> {
+  async createLessonVideo(
+    input: LessonVideoInput,
+    video: MulterFile
+  ): Promise<DataResponse> {
     try {
-      const newLessonVideo = this.lessonVideoRepository.create(input);
+      const newLessonVideo = this.lessonVideoRepository.create({
+        title: input.title,
+        lesson: input.lesson,
+        url: video.path ?? input.url,
+      });
       await this.lessonVideoRepository.save(newLessonVideo);
       const newLessonVideoId = newLessonVideo.id;
 
@@ -33,7 +40,7 @@ export class LessonVideoService implements LessonVideoInterface {
 
   async getLessonVideo(id: number): Promise<DataResponse> {
     try {
-      const lessonVideo = this.lessonVideoRepository.getById(id);
+      const lessonVideo = await this.lessonVideoRepository.getById(id);
       return { status: 200, data: { lessonVideo } };
     } catch ({ message }) {
       Logger.error(message);
@@ -43,11 +50,15 @@ export class LessonVideoService implements LessonVideoInterface {
 
   async updateLessonVideo(
     id: number,
-    input: LessonVideoInput
+    input: LessonVideoInput,
+    video: MulterFile
   ): Promise<DataResponse> {
     try {
-      await this.lessonVideoRepository.update(id, input);
-      const lessonVideo = this.lessonVideoRepository.getById(id);
+      const lessonVideo = await this.lessonVideoRepository.updateById(
+        id,
+        input,
+        video.path
+      );
 
       return { status: 203, data: { lessonVideo } };
     } catch ({ message }) {

@@ -1,8 +1,7 @@
 import bcryptService from 'bcrypt';
 import jwtService from 'jsonwebtoken';
 import * as process from 'process';
-import { Service } from 'typedi';
-import { Inject } from 'typescript-ioc';
+import { Inject, Service } from 'typedi';
 import { Student } from '../e-learning/students/entity/student';
 import { StudentRepository } from '../e-learning/students/repository/studentRepository';
 import {
@@ -14,9 +13,11 @@ import {
 
 @Service()
 export class JwtAuthService {
-  constructor(@Inject private readonly studentRepository: StudentRepository) {}
+  constructor(
+    @Inject() private readonly studentRepository: StudentRepository
+  ) {}
 
-  async tokenGenerator(student: Student): Promise<TokenResponse> {
+  public async tokenGenerator(student: Student): Promise<TokenResponse> {
     const accessToken = await this.generateAccessToken({
       id: String(student.id),
     });
@@ -27,7 +28,7 @@ export class JwtAuthService {
     return { accessToken, refreshToken };
   }
 
-  async generateAccessToken(payload: JwtPayload) {
+  public async generateAccessToken(payload: JwtPayload): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       jwtService.sign(
         payload,
@@ -44,7 +45,7 @@ export class JwtAuthService {
     });
   }
 
-  async generateRefreshToken(payload: JwtPayload) {
+  public async generateRefreshToken(payload: JwtPayload): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       jwtService.sign(
         payload,
@@ -61,7 +62,7 @@ export class JwtAuthService {
     });
   }
 
-  async verifyAccessToken(token: string): Promise<JwtPayload> {
+  public async verifyAccessToken(token: string): Promise<JwtPayload> {
     return new Promise<JwtPayload>((resolve, reject) => {
       jwtService.verify(
         token,
@@ -74,7 +75,7 @@ export class JwtAuthService {
     });
   }
 
-  async verifyRefreshToken(token: string): Promise<JwtPayload> {
+  public async verifyRefreshToken(token: string): Promise<JwtPayload> {
     return new Promise((resolve, reject) => {
       jwtService.verify(
         token,
@@ -87,7 +88,7 @@ export class JwtAuthService {
     });
   }
 
-  async verifyJwtAccessToken(
+  public async verifyJwtAccessToken(
     token: string
   ): Promise<VerifyRefreshTokenResponse> {
     try {
@@ -106,7 +107,7 @@ export class JwtAuthService {
     }
   }
 
-  async refreshTokens(
+  public async refreshTokens(
     currentRefreshToken: string
   ): Promise<Partial<RefreshTokenResponse>> {
     try {
@@ -124,16 +125,19 @@ export class JwtAuthService {
         const { accessToken, refreshToken } = await this.tokenGenerator(
           student
         );
+
         return { accessToken, refreshToken, user: student };
       } else {
         return { errorMessage: 'Refresh token is invalid' };
       }
-    } catch (err) {
-      return { errorMessage: err.message };
+    } catch ({ message }) {
+      return { errorMessage: message };
     }
   }
 
-  async revokeAccessToken(currentRefreshToken: string): Promise<boolean> {
+  public async revokeAccessToken(
+    currentRefreshToken: string
+  ): Promise<boolean> {
     const decodedToken = await this.verifyRefreshToken(currentRefreshToken);
     const student = await this.studentRepository.findById(
       parseInt(decodedToken.id)
@@ -141,7 +145,7 @@ export class JwtAuthService {
 
     if (!student) throw new Error('User not found');
 
-    student.refreshToken = null;
+    student.setRefreshToken(null);
     await this.studentRepository.save(student);
     return true;
   }

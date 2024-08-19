@@ -1,14 +1,11 @@
-import { Lesson } from '../../entity/lesson';
-import { LessonInput } from '../../../interface';
-import {
-  DataResponse,
-  DeleteResponse,
-} from '../../../../../interfaces/response';
+import { Pagination } from '../../../../../e-learning/students/interface';
+import { DataResponse, DeleteResponse } from '../../../../interfaces/response';
+import { LessonInput } from '../../interface';
 
 export interface LessonServiceInterface {
   createLesson(input: LessonInput): Promise<DataResponse>;
-  getLessons(): Promise<Lesson[]>;
-  getLesson(id: number): Promise<Lesson>;
+  getLessons(): Promise<Partial<Pagination>>;
+  getLesson(id: number): Promise<DataResponse>;
   updateLesson(id: number, input: LessonInput): Promise<DataResponse>;
   deleteLesson(id: number): Promise<DeleteResponse>;
 }

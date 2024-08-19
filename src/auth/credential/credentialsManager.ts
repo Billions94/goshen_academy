@@ -1,17 +1,16 @@
 import bcryptService from 'bcrypt';
-import { Service } from 'typedi';
-import { Inject } from 'typescript-ioc';
-import { StudentRepository } from '../../e-learning/students/repository/studentRepository';
 import process from 'process';
+import { Inject, Service } from 'typedi';
 import { Student } from '../../e-learning/students/entity/student';
+import { StudentRepository } from '../../e-learning/students/repository/studentRepository';
 
 /**
  * Credential manager for verifying Student entities credentials
  */
 @Service()
 export class CredentialManager {
-  @Inject
-  private static readonly studentRepository: StudentRepository;
+  @Inject()
+  private readonly studentRepository: StudentRepository;
 
   /**
    * @remarks This is a custom method.
@@ -22,7 +21,7 @@ export class CredentialManager {
    * @returns A promise of a type <Student | null | undefined>.
    * @beta
    */
-  public static async verifyCredentials(email: string, password: string) {
+  public async verifyCredentials(email: string, password: string) {
     const student = await this.studentRepository.findByEmail(email);
 
     if (student) {
@@ -32,11 +31,11 @@ export class CredentialManager {
     }
   }
 
-  public static async hashPassword(password: string): Promise<string> {
+  public async hashPassword(password: string): Promise<string> {
     return bcryptService.hash(password, 12);
   }
 
-  public static async hashRefreshToken(
+  public async hashRefreshToken(
     refreshToken: string,
     student: Student
   ): Promise<void> {

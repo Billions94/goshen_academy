@@ -1,18 +1,13 @@
-FROM node:18-alpine
+FROM node:alpine
 
 WORKDIR /usr/src/app
-
 COPY package*.json ./
-
 RUN npm install glob rimraf
 RUN npm install ts-node-dev
 RUN npm install express-api-cache
-RUN npm install
-
+RUN npm install bcrypt
+RUN npm install reflect-metadata
 COPY . .
-
 RUN npm run build
-
-EXPOSE 3001
-
+EXPOSE 8080
 CMD ["npm", "run", "start"]

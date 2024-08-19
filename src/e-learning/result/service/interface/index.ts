@@ -1,4 +1,4 @@
-import { DataResponse, DeleteResponse } from '../../../../interfaces/response';
+import { DataResponse, DeleteResponse } from '../../../interfaces/response';
 import { ResultInput } from '../../interface';
 
 export interface ResultServiceInterface {

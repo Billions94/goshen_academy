@@ -1,51 +1,54 @@
-import cors from 'cors';
 import { config } from 'dotenv';
-import express, { Express } from 'express';
+import { Express } from 'express';
+import listEndpoints from 'express-list-endpoints';
 import 'reflect-metadata';
-import { Inject } from 'typescript-ioc';
+import { Action, createExpressServer, useContainer } from 'routing-controllers';
+import Container from 'typedi';
 import { DataBase } from './db/init';
+import { LessonController } from './e-learning/lessons/lesson/controller/lessonController';
+import { LessonCategoryController } from './e-learning/lessons/lessonCategory/controller/lessonCategoryController';
+import { LessonVideoController } from './e-learning/lessons/lessonVideo/controller/lessonVideoController';
+import { QuizController } from './e-learning/quiz/controller/quizController';
+import { ResultController } from './e-learning/result/controller/resultController';
+import { StudentController } from './e-learning/students/controller/studentController';
 import { AuthGuard } from './middlewares/authGuard';
 import { RequireUser } from './middlewares/requireUser';
-import { RouteHandler } from './routes/routeHandler';
 import Logger from './utils/logger/logger';
-import Requestlogger from './utils/logger/requestLogger';
+import RequestLogger from './utils/logger/requestLogger';
 
 config({ path: '.env' });
+useContainer(Container);
 export class Server {
-  @Inject
-  private readonly authGuard: AuthGuard;
-  @Inject
-  private readonly requireUser: RequireUser;
-  @Inject
-  private readonly routes: RouteHandler;
   private readonly server: Express;
   private readonly port = parseInt(process.env.PORT ?? '8080');
 
   constructor() {
-    this.server = express();
-    this.server.use(cors({ origin: '*' }));
-    this.server.use(express.json({ limit: '50mb' }));
-    this.server.use(Requestlogger);
+    this.server = createExpressServer({
+      cors: { origin: '*' },
+      currentUserChecker: ({ request: { user } }: Action) => user,
+      authorizationChecker: ({ request: { user } }: Action) =>
+        user.isAdmin ? true : false,
+      routePrefix: '/api',
+      controllers: [
+        StudentController,
+        LessonController,
+        LessonCategoryController,
+        LessonVideoController,
+        QuizController,
+        ResultController,
+      ],
+      middlewares: [AuthGuard, RequireUser, RequestLogger],
+    });
     this.connect();
-    this.activateGuards();
-    this.loadRoutes();
   }
 
   private connect(): void {
     DataBase.connect().then(() =>
-      this.server.listen(this.port, '0.0.0.0', () =>
-        Logger.info(`server is listening on http://localhost:${this.port}`)
-      )
+      this.server.listen(this.port, () => {
+        Logger.info(`server is listening on http://localhost:${this.port}`);
+        console.table(listEndpoints(this.server));
+      })
     );
-  }
-
-  private activateGuards(): void {
-    this.server.use(this.authGuard.init);
-    this.server.use(this.requireUser.init);
-  }
-
-  private loadRoutes(): void {
-    this.routes.initialize(this.server);
   }
 }
 
