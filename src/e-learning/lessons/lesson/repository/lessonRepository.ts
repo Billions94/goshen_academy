@@ -1,7 +1,7 @@
 import { Service } from 'typedi';
 import { Repository } from 'typeorm';
 import { DataBase } from '../../../../db/init';
-import { Order } from '../../../../e-learning/students/interface';
+import { Order } from '../../../../e-learning/interfaces';
 import { addPagination } from '../../../../utils/helper/add-pagination';
 import { Lesson } from '../entity/lesson';
 

@@ -1,8 +1,8 @@
 import { TokenResponse } from '../../../../auth/interface';
-import { LoginInput } from '../../../interfaces';
+import { LoginInput, Pagination } from '../../../interfaces';
 import { DataResponse, DeleteResponse } from '../../../interfaces/response';
 import { Student } from '../../entity/student';
-import { Pagination, StudentInput } from '../../interface';
+import { StudentInput } from '../../interface';
 
 export interface StudentServiceInterface {
   createStudent(studentInput: StudentInput): Promise<DataResponse>;

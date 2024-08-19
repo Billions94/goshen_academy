@@ -1,9 +1,10 @@
 import { Service } from 'typedi';
 import { Repository } from 'typeorm';
 import { DataBase } from '../../../db/init';
+import { Order } from '../../../e-learning/interfaces';
 import { addPagination } from '../../../utils/helper/add-pagination';
 import { Student } from '../entity/student';
-import { Order, SqlRawQueryMapperStudent, StudentInput } from '../interface';
+import { SqlRawQueryMapperStudent, StudentInput } from '../interface';
 import { studentResponseMapper } from '../mapper/studentResponseMapper';
 
 @Service()
@@ -57,9 +58,7 @@ export class StudentRepository extends Repository<Student> {
   async getByStudentId(
     studentId: string
   ): Promise<SqlRawQueryMapperStudent | null> {
-    const queryBuilder = this.createQueryBuilder('student');
-
-    return await queryBuilder
+    return await this.createQueryBuilder('student')
       .where('student.student_id = :student_id ', {
         student_id: studentId,
       })

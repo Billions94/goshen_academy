@@ -1,4 +1,4 @@
-import { Pagination } from '../../../../e-learning/students/interface';
+import { Pagination } from '../../../interfaces';
 import { DataResponse, DeleteResponse } from '../../../interfaces/response';
 import { QuizInput } from '../../interface';
 
