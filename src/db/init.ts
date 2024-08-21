@@ -14,7 +14,6 @@ export class DataBase {
       }
     } catch ({ message }) {
       Logger.error(message);
-      Logger.error('Failed to connect to database');
       process.exit(1);
     }
   }

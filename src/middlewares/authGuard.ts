@@ -64,57 +64,11 @@ export class AuthGuard implements ExpressMiddlewareInterface {
           return next();
         }
 
+        req.headers['authorization'] = `Bearer ${accessToken}`;
+        req.headers['x-refresh'] = refreshToken;
         req.user = user;
         return next();
       }
     }
   }
-  // init: RequestHandler = async (req, res, next) => {
-  //   if (!req.headers.authorization) {
-  //     if (
-  //       req.method === 'GET' ||
-  //       req.path.includes('register') ||
-  //       req.path.includes('login')
-  //     ) {
-  //       return next();
-  //     } else {
-  //       res.send({
-  //         error: {
-  //           message: 'Please provide token in Authorization header!',
-  //         },
-  //       });
-  //     }
-  //   } else {
-  //     const accessToken = req?.headers?.authorization?.replace('Bearer ', '');
-  //     const refreshToken = String(get(req, 'headers.x-refresh'));
-
-  //     const { decodedToken, expired } =
-  //       await this.jwtAuthService.verifyJwtAccessToken(accessToken);
-
-  //     if (decodedToken) {
-  //       const user = await this.studentRepository.findById(
-  //         parseInt(String(decodedToken?.id))
-  //       );
-
-  //       if (user) {
-  //         req.user = user;
-  //         return next();
-  //       }
-  //     } else if (expired && refreshToken) {
-  //       const { accessToken, user, errorMessage } =
-  //         await this.jwtAuthService.refreshTokens(refreshToken);
-
-  //       if (errorMessage) {
-  //         Logger.warn('Jwt token expired');
-  //         return next();
-  //       }
-  //       if (accessToken) {
-  //         res.setHeader('x-access-token', accessToken);
-  //       }
-
-  //       req.user = user;
-  //       return next();
-  //     }
-  //   }
-  // };
 }

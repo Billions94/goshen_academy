@@ -1,5 +1,5 @@
 import { ObjectLiteral, SelectQueryBuilder } from 'typeorm';
-import { Pagination } from '../../e-learning/students/interface';
+import { Pagination } from '../../e-learning/interfaces';
 
 export function addPagination<T extends ObjectLiteral>(
   queryBuilder: SelectQueryBuilder<T>,

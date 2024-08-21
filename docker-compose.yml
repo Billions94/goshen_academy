@@ -14,19 +14,19 @@ services:
       - '0.0.0.0:5432:5432'
 
   # Backend Api service
-  api:
-    build: .
-    ports:
-      - '8081:8080'
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
-    command: npm run start:docker
-    environment:
-      PORT: 8080
-    restart: always
-    depends_on:
-      - db
+#   api:
+#     build: .
+#     ports:
+#       - '8081:8080'
+#     volumes:
+#       - .:/usr/src/app
+#       - /usr/src/app/node_modules
+#     command: npm run start:docker
+#     environment:
+#       PORT: 8080
+#     restart: always
+#     depends_on:
+#       - db
 
-networks:
-  common_network:
+# networks:
+#   common_network:
