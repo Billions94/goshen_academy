@@ -1,14 +1,8 @@
-import { Inject, Service } from 'typedi';
+import { Service } from 'typedi';
 import { StudentInput } from '../../e-learning/students/interface';
-import { ErrorMapper } from '../mapper/errorMapper';
 
 @Service()
 export class Validator {
-  //@Inject
-  //private static readonly studentRepository: StudentRepository;
-  @Inject()
-  private static readonly customErrorResponse: ErrorMapper;
-
   /**
    * @remarks This is a custom method.
    * Throws specific input field errors if the field is empty or
@@ -43,47 +37,4 @@ export class Validator {
     if (!input || input === undefined) return true;
     return input.trim().length <= 0;
   }
-
-  /**
-   * @remarks This is a custom method.
-   * Throws an error if an email already exists in a connected
-   * database or datasource
-   * @param email - An email to compare with an existing email in
-   * a connected database or datasource
-   * @returns A promise of type void.
-   */
-  // public static async isExistsByEmail(email: string): Promise<void> {
-  //   if ((await this.studentRepository.isExistByEmail(email))?.email === email)
-  //     throw new Error('Email already exists');
-  // }
-
-  /**
-   * @remarks This is a custom method.
-   * Throws an error for an entity passed as param, if they do not exist.
-   * The id has to be from the entity passed as matcher.
-   * @param id - Identifier for the entity e.g. x.id, with x being the entity.
-   * @param matcher - Matcher or alias for the entity in lowercase
-   * e.g. 'user' or 'post' or 'space'
-   * @returns A promise of type void.
-   * @beta
-   */
-  //   public static async throwErrorIfNotExist(
-  //     id: number,
-  //     matcher?: string
-  //   ): Promise<Partial<ErrorResponse | undefined>> {
-  //     switch (matcher) {
-  //       case 'student':
-  //         const student = await this.studentRepository.isExists(id);
-  //         if (!student) {
-  //           return this.customErrorResponse.throw('entity not found', 400);
-  //         }
-  //         break;
-  //       default:
-  //         return this.customErrorResponse.throw(
-  //           'Generic error could not determine error Object',
-  //           500
-  //         );
-  //     }
-  //   }
-  // }
 }

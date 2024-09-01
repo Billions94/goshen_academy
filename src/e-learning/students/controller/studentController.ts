@@ -1,4 +1,5 @@
 import {
+  Authorized,
   Body,
   CurrentUser,
   Delete,
@@ -27,10 +28,18 @@ export class StudentController {
   @Get()
   async getStudents(
     @QueryParams() params: Order & Paging
-  ): Promise<Partial<Pagination>> {
+  ): Promise<Partial<Pagination<Partial<Student>>>> {
     const { page, limit, key: k = 'student.name', value = 'DESC' } = params;
     const key = studentColumnMapper[k];
     return this.studentService.getStudents({ page, limit }, { key, value });
+  }
+
+  @Authorized()
+  @Get('/current-student')
+  async getCurrentStudent(
+    @CurrentUser() student: Student
+  ): Promise<DataResponse> {
+    return this.studentService.getCurrentStudent(student);
   }
 
   @Get('/:id')

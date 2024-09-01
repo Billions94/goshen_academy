@@ -6,13 +6,20 @@ import { StudentInput } from '../../interface';
 
 export interface StudentServiceInterface {
   createStudent(studentInput: StudentInput): Promise<DataResponse>;
+
   login(loginInput: LoginInput): Promise<Partial<TokenResponse>>;
-  getStudents(): Promise<Partial<Pagination>>;
+
+  getStudents(): Promise<Partial<Pagination<Partial<Student>>>>;
+
+  getCurrentStudent(student: Student): Promise<DataResponse>;
+
   getStudent(id: number): Promise<DataResponse>;
+
   updateStudent(
     id: number,
     studentInput: StudentInput,
     student?: Student
   ): Promise<Partial<DataResponse>>;
+
   deleteStudent(id: number): Promise<DeleteResponse>;
 }

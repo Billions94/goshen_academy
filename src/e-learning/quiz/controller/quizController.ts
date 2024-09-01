@@ -12,6 +12,7 @@ import {
 import { Inject, Service } from 'typedi';
 import { Order, Pagination, Paging } from '../../../e-learning/interfaces';
 import { DataResponse, DeleteResponse } from '../../interfaces/response';
+import { Quiz } from '../entity/quiz';
 import { QuizInput } from '../interface';
 import { QuizService } from '../service/quizService';
 
@@ -28,7 +29,9 @@ export class QuizController {
   }
 
   @Get()
-  async getAllQuiz(@QueryParams() params: Order & Paging): Promise<Pagination> {
+  async getAllQuiz(
+    @QueryParams() params: Order & Paging
+  ): Promise<Pagination<Partial<Quiz>>> {
     const { page, limit, key = 'id', value = 'DESC' } = params;
     return await this.quizService.getAllQuiz({ page, limit }, { key, value });
   }

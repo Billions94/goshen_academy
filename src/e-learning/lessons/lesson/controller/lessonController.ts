@@ -12,6 +12,7 @@ import {
 import { Inject, Service } from 'typedi';
 import { Order, Pagination, Paging } from '../../../../e-learning/interfaces';
 import { DataResponse, DeleteResponse } from '../../../interfaces/response';
+import { Lesson } from '../entity/lesson';
 import { LessonInput } from '../interface';
 import { LessonService } from '../service/lessonService';
 
@@ -30,7 +31,7 @@ export class LessonController {
   @Get()
   async getLessons(
     @QueryParams() params: Order & Paging
-  ): Promise<Partial<Pagination>> {
+  ): Promise<Partial<Pagination<Partial<Lesson>>>> {
     const { page, limit, key = 'lesson.id', value = 'ASC' } = params;
     return this.lessonService.getLessons({ page, limit }, { key, value });
   }

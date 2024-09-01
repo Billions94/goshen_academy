@@ -1,25 +1,13 @@
-import { Lesson } from '../lessons/lesson/entity/lesson';
-import { LessonCategory } from '../lessons/lessonCategory/entity/lessonCategory';
-import { LessonVideo } from '../lessons/lessonVideo/entity/lessonVideo';
-import { Quiz } from '../quiz/entity/quiz';
-import { Result } from '../result/entity/result';
-import { Student } from '../students/entity/student';
-
 export interface Paging {
-  page: number;
-  limit: number;
+  page: string;
+  limit: string;
 }
 
-export interface Pagination {
+export interface Pagination<T> {
   page: number;
   limit: number;
-  results:
-    | Partial<Student[]>
-    | Partial<Lesson[]>
-    | Partial<LessonCategory[]>
-    | Partial<LessonVideo[]>
-    | Partial<Quiz[]>
-    | Partial<Result[]>;
+  results: T[];
+  pageCount: number;
 }
 
 export interface Order {
@@ -38,4 +26,9 @@ export interface ErrorResponse {
   error: {
     message: string;
   };
+}
+
+export interface ResultAndCount<T> {
+  results: T[];
+  count: number;
 }

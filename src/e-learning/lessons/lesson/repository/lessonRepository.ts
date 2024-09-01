@@ -40,13 +40,13 @@ export class LessonRepository extends Repository<Lesson> {
     order: Order,
     limit: number,
     skip: number
-  ): Promise<Lesson[]> {
+  ): Promise<[Lesson[], number]> {
     const queryBuilder = this.createQueryBuilder('lesson');
     return await addPagination(queryBuilder, { limit, page: skip })
       .leftJoinAndSelect('lesson.students', 'students')
       .orderBy(`${order.key}`, `${order.value}`)
       .cache(25000)
-      .getMany();
+      .getManyAndCount();
   }
 
   /**

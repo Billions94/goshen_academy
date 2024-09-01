@@ -59,10 +59,7 @@ export class AuthGuard implements ExpressMiddlewareInterface {
         const { accessToken, user, errorMessage } =
           await this.jwtAuthService.refreshTokens(refreshToken);
 
-        if (errorMessage) {
-          Logger.warn('Jwt token expired');
-          return next();
-        }
+        if (errorMessage) Logger.warn('Jwt token expired');
 
         req.headers['authorization'] = `Bearer ${accessToken}`;
         req.headers['x-refresh'] = refreshToken;

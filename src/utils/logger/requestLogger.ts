@@ -16,7 +16,7 @@ class RequestLogger implements ExpressMiddlewareInterface {
       `${req.method} request to ${process.env.LOCAL_URL}:${
         process.env.PORT
       }/api${req.path}${
-        <any>req.query.length > 0
+        Object.keys(req.query).length > 0
           ? `?${
               'page=' +
               page +

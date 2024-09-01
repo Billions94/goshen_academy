@@ -8,11 +8,11 @@ const isCompiled = path.extname(__filename).includes('js');
 
 const ORMConfig = {
   type: 'postgres',
-  host: process.env.DB_HOST,
-  port: parseInt(<string>process.env.DB_PORT),
-  username: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME ?? 'typeorm',
+  host: process.env.DB_HOST || 'localhost',
+  port: parseInt(<string>process.env.DB_PORT) || 5432,
+  username: process.env.DB_USERNAME || 'postgres',
+  password: process.env.DB_PASSWORD || 'lockpostgres',
+  database: process.env.DB_NAME || 'postgres',
   logging: !process.env.DB_NO_LOGS,
   autoReconnect: true,
   reconnectTries: Number.MAX_VALUE,

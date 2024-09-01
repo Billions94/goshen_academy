@@ -30,12 +30,12 @@ export class QuizRepository extends Repository<Quiz> {
     order: Order,
     limit: number,
     skip: number
-  ): Promise<Quiz[]> {
+  ): Promise<[Quiz[], number]> {
     const queryBuilder = this.createQueryBuilder('quiz');
     return await addPagination(queryBuilder, { limit, page: skip })
       .orderBy(`${order.key}`, `${order.value}`)
       .cache(25000)
-      .getMany();
+      .getManyAndCount();
   }
 
   async getById(id: number): Promise<Quiz> {

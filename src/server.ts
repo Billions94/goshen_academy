@@ -1,14 +1,15 @@
+import 'reflect-metadata';
+
 import { config } from 'dotenv';
 import { Express } from 'express';
 import listEndpoints from 'express-list-endpoints';
-import 'reflect-metadata';
 import { useContainer } from 'routing-controllers';
 import Container from 'typedi';
 import { DataBase } from './db/init';
 import { RouteHandler } from './routes/routeHandler';
 import Logger from './utils/logger/logger';
 
-config({ path: '.env' });
+config();
 useContainer(Container);
 export class Server {
   private readonly server: Express;

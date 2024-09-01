@@ -8,12 +8,16 @@ export interface LessonVideoInterface {
     input: LessonVideoInput,
     video: MulterFile
   ): Promise<DataResponse>;
+
   getLessonVideos(): Promise<LessonVideo[]>;
+
   getLessonVideo(id: number): Promise<DataResponse>;
+
   updateLessonVideo(
     id: number,
     input: LessonVideoInput,
     video: MulterFile
   ): Promise<DataResponse>;
+
   deleteLessonVideo(id: number): Promise<DeleteResponse>;
 }

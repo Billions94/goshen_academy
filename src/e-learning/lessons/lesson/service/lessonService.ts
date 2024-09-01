@@ -1,5 +1,10 @@
 import { Inject, Service } from 'typedi';
-import { Order, Pagination, Paging } from '../../../../e-learning/interfaces';
+import {
+  Order,
+  Pagination,
+  Paging,
+  ResultAndCount,
+} from '../../../../e-learning/interfaces';
 import { Student } from '../../../../e-learning/students/entity/student';
 import { StudentRepository } from '../../../../e-learning/students/repository/studentRepository';
 import Logger from '../../../../utils/logger/logger';
@@ -39,21 +44,25 @@ export class LessonService implements LessonServiceInterface {
   async getLessons(
     query?: Paging,
     order?: Order
-  ): Promise<Partial<Pagination>> {
+  ): Promise<Partial<Pagination<Partial<Lesson>>>> {
     try {
       if (query?.limit && query.page && order?.key && order?.value) {
         const { limit, page } = query;
 
+        const { count, results } = await this.mapLessons({ query, order });
+
         return {
-          limit: limit,
-          page: page,
-          results: await this.mapLessons({ query, order }),
+          limit: parseInt(limit),
+          page: parseInt(page),
+          pageCount: Math.ceil(count / parseInt(limit)),
+          results,
         };
       } else {
         return {
           limit: 0,
           page: 0,
-          results: await this.mapLessons(),
+          pageCount: 0,
+          results: (await this.mapLessons()).results,
         };
       }
     } catch ({ message }) {
@@ -61,6 +70,7 @@ export class LessonService implements LessonServiceInterface {
       return {
         limit: 0,
         page: 0,
+        pageCount: 0,
         results: [],
       };
     }
@@ -69,21 +79,31 @@ export class LessonService implements LessonServiceInterface {
   async mapLessons(options?: {
     query: Paging;
     order: Order;
-  }): Promise<Lesson[]> {
-    return options
-      ? await this.lessonRepository
-          .getLessonsAndPaginate(
-            {
-              key: options.order.key,
-              value: options.order.value,
-            },
-            options.query.limit,
-            options.query.page
-          )
-          .then((lessons) => lessons.map(lessonResponseMapper) as Lesson[])
-      : await this.lessonRepository
-          .find()
-          .then((lessons) => lessons.map(lessonResponseMapper) as Lesson[]);
+  }): Promise<ResultAndCount<Partial<Lesson>>> {
+    if (!options) {
+      const results = await this.lessonRepository
+        .find()
+        .then((lessons) => lessons.map(lessonResponseMapper));
+
+      return {
+        results,
+        count: results.length,
+      };
+    }
+
+    const [lessons, count] = await this.lessonRepository.getLessonsAndPaginate(
+      {
+        key: options.order.key,
+        value: options.order.value,
+      },
+      parseInt(options.query.limit),
+      parseInt(options.query.page)
+    );
+
+    return {
+      count,
+      results: lessons.map(lessonResponseMapper),
+    };
   }
 
   async getLesson(id: number): Promise<DataResponse> {

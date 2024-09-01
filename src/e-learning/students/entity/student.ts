@@ -44,6 +44,9 @@ export class Student {
   @ManyToMany(() => Lesson, (lesson) => lesson.students)
   lessons: Lesson[];
 
+  @Column('varchar', { name: '', length: 300, nullable: true })
+  image: string;
+
   @Column('varchar', { name: 'password', length: 250, nullable: true })
   private password: string;
 

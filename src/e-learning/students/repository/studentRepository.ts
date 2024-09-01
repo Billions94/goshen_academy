@@ -30,13 +30,13 @@ export class StudentRepository extends Repository<Student> {
     order: Order,
     limit: number,
     skip: number
-  ): Promise<Student[]> {
+  ): Promise<[Student[], number]> {
     const queryBuilder = this.createQueryBuilder('student');
     return await addPagination(queryBuilder, { limit, page: skip })
       .leftJoinAndSelect('student.lessons', 'lessons')
       .orderBy(`${order.key}`, `${order.value}`)
       .cache(25000)
-      .getMany();
+      .getManyAndCount();
   }
 
   async findByEmail(email: string): Promise<Student | null> {
@@ -79,36 +79,21 @@ export class StudentRepository extends Repository<Student> {
     updateInput: Partial<StudentInput>,
     student: Student
   ): Promise<Partial<Student>> {
-    if (student.id !== id && student.isAdmin)
+    if (student.id !== id && student.isAdmin) {
       await this.createQueryBuilder()
         .update(await this.findById(id))
-        .set({
-          firstName: updateInput.firstName,
-          lastName: updateInput.lastName,
-          dateOfBirth: updateInput.dateOfBirth,
-          email: updateInput.email,
-          address: updateInput.address,
-          nationality: updateInput.nationality,
-          updatedAt: new Date(),
-        })
+        .set({ ...updateInput })
         .where({ id })
         .execute();
-    else
+      return studentResponseMapper(await this.findById(id));
+    } else {
       await this.createQueryBuilder()
         .update(student)
-        .set({
-          firstName: updateInput.firstName,
-          lastName: updateInput.lastName,
-          dateOfBirth: updateInput.dateOfBirth,
-          email: updateInput.email,
-          address: updateInput.address,
-          nationality: updateInput.nationality,
-          updatedAt: new Date(),
-        })
+        .set({ ...updateInput })
         .where({ id: student.id })
         .execute();
-
-    return studentResponseMapper(await this.findById(id));
+      return studentResponseMapper(await this.findById(id));
+    }
   }
 
   async isExistByEmail(email: string): Promise<Student | null> {

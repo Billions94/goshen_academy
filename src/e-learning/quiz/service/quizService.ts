@@ -1,8 +1,14 @@
 import { Inject, Service } from 'typedi';
-import { Order, Pagination, Paging } from '../../../e-learning/interfaces';
+import {
+  Order,
+  Pagination,
+  Paging,
+  ResultAndCount,
+} from '../../../e-learning/interfaces';
 import Logger from '../../../utils/logger/logger';
 import { ErrorMapper } from '../../../utils/mapper/errorMapper';
 import { DataResponse, DeleteResponse } from '../../interfaces/response';
+import { Quiz } from '../entity/quiz';
 import { QuizInput } from '../interface';
 import { QuizRepository } from '../repository/quizRepository';
 import { QuizServiceInterface } from './interface';
@@ -27,21 +33,27 @@ export class QuizService implements QuizServiceInterface {
     }
   }
 
-  async getAllQuiz(query?: Paging, order?: Order): Promise<Pagination> {
+  async getAllQuiz(
+    query?: Paging,
+    order?: Order
+  ): Promise<Pagination<Partial<Quiz>>> {
     try {
       if (query?.limit && query.page && order?.key && order?.value) {
         const { limit, page } = query;
+        const { results, count } = await this.mapQuizzes({ query, order });
 
         return {
-          limit: limit,
-          page: page,
-          results: await this.mapQuizzes({ query, order }),
+          limit: parseInt(limit),
+          page: parseInt(page),
+          pageCount: Math.ceil(count / parseInt(limit)),
+          results,
         };
       } else {
         return {
           limit: 0,
           page: 0,
-          results: await this.mapQuizzes(),
+          pageCount: 0,
+          results: (await this.mapQuizzes()).results,
         };
       }
     } catch ({ message }) {
@@ -49,22 +61,37 @@ export class QuizService implements QuizServiceInterface {
       return {
         limit: 0,
         page: 0,
+        pageCount: 0,
         results: [],
       };
     }
   }
 
-  async mapQuizzes(options?: { query: Paging; order: Order }) {
-    return options
-      ? await this.quizRepository.getQuizzesAndPaginate(
-          {
-            key: options.order.key,
-            value: options.order.value,
-          },
-          options.query.limit,
-          options.query.page
-        )
-      : await this.quizRepository.find();
+  async mapQuizzes(options?: {
+    query: Paging;
+    order: Order;
+  }): Promise<ResultAndCount<Partial<Quiz>>> {
+    if (!options) {
+      const results = await this.quizRepository.find();
+      return {
+        results,
+        count: 0,
+      };
+    }
+
+    const [results, count] = await this.quizRepository.getQuizzesAndPaginate(
+      {
+        key: options.order.key,
+        value: options.order.value,
+      },
+      parseInt(options.query.limit),
+      parseInt(options.query.page)
+    );
+
+    return {
+      results,
+      count,
+    };
   }
 
   async getQuiz(id: number): Promise<DataResponse> {

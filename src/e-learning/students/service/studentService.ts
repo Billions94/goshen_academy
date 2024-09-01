@@ -5,7 +5,13 @@ import { JwtAuthService } from '../../../auth/jwtService';
 import Logger from '../../../utils/logger/logger';
 import { ErrorMapper } from '../../../utils/mapper/errorMapper';
 import { Validator } from '../../../utils/validator/validator';
-import { LoginInput, Order, Pagination, Paging } from '../../interfaces';
+import {
+  LoginInput,
+  Order,
+  Pagination,
+  Paging,
+  ResultAndCount,
+} from '../../interfaces';
 import { DataResponse, DeleteResponse } from '../../interfaces/response';
 import { Student } from '../entity/student';
 import { SqlRawQueryMapperStudent, StudentInput } from '../interface';
@@ -81,24 +87,36 @@ export class StudentService implements StudentServiceInterface {
     }
   }
 
+  async getCurrentStudent(student: Student): Promise<DataResponse> {
+    try {
+      return { status: 200, data: studentResponseMapper(student) };
+    } catch ({ message }) {
+      Logger.error({ message });
+      return this.errorResponseMapper.throw(message);
+    }
+  }
+
   async getStudents(
     query?: Paging,
     order?: Order
-  ): Promise<Partial<Pagination>> {
+  ): Promise<Partial<Pagination<Partial<Student>>>> {
     try {
       if (query?.limit && query.page && order?.key && order?.value) {
         const { limit, page } = query;
+        const { count, results } = await this.mapStudents({ query, order });
 
         return {
-          limit: limit,
-          page: page,
-          results: await this.mapStudents({ query, order }),
+          limit: parseInt(limit),
+          page: parseInt(page),
+          pageCount: Math.ceil(count / parseInt(limit)),
+          results,
         };
       } else {
         return {
           limit: 0,
           page: 0,
-          results: await this.mapStudents(),
+          pageCount: 0,
+          results: (await this.mapStudents()).results,
         };
       }
     } catch ({ message }) {
@@ -106,30 +124,41 @@ export class StudentService implements StudentServiceInterface {
       return {
         limit: 0,
         page: 0,
+        pageCount: 0,
         results: [],
       };
     }
   }
 
-  async mapStudents(options?: { query: Paging; order: Order }) {
-    return options
-      ? ((await this.studentRepository
-          .getStudentsAndPaginate(
-            {
-              key: options.order.key,
-              value: options.order.value,
-            },
-            options.query.limit,
-            options.query.page
-          )
-          .then((students) => students.map(studentResponseMapper))) as Partial<
-          Student[]
-        >)
-      : ((await this.studentRepository
-          .find()
-          .then((students) => students.map(studentResponseMapper))) as Partial<
-          Student[]
-        >);
+  async mapStudents(options?: {
+    query: Paging;
+    order: Order;
+  }): Promise<ResultAndCount<Partial<Student>>> {
+    if (!options) {
+      const results = await this.studentRepository
+        .find()
+        .then((students) => students.map(studentResponseMapper));
+
+      return {
+        results,
+        count: results.length,
+      };
+    }
+
+    const [students, count] =
+      await this.studentRepository.getStudentsAndPaginate(
+        {
+          key: options.order.key,
+          value: options.order.value,
+        },
+        parseInt(options.query.limit),
+        parseInt(options.query.page)
+      );
+
+    return {
+      count,
+      results: students.map(studentResponseMapper),
+    };
   }
 
   async getStudent(id: number): Promise<DataResponse> {
