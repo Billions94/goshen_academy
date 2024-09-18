@@ -6,18 +6,15 @@ import {
   ManyToMany,
   ManyToOne,
   OneToMany,
-  PrimaryGeneratedColumn,
 } from 'typeorm';
+import { BaseTimeEntry } from '../../../../e-learning/base/base-time-entry';
 import { Quiz } from '../../../../e-learning/quiz/entity/quiz';
 import { Student } from '../../../../e-learning/students/entity/student';
 import { LessonCategory } from '../../lessonCategory/entity/lessonCategory';
 import { LessonVideo } from '../../lessonVideo/entity/lessonVideo';
 
 @Entity({ name: 'lesson' })
-export class Lesson {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class Lesson extends BaseTimeEntry {
   @Column('varchar', { name: 'name', nullable: false })
   name: string;
 

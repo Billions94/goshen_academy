@@ -1,19 +1,10 @@
-import {
-  BeforeInsert,
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { BeforeInsert, Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { BaseEntity } from '../../../e-learning/base/base-entity';
 import { Quiz } from '../../../e-learning/quiz/entity/quiz';
 import { Student } from '../../students/entity/student';
 
 @Entity({ name: 'result' })
-export class Result {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class Result extends BaseEntity {
   @Column('int', { name: 'score', nullable: false })
   score: number;
 

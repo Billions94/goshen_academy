@@ -24,14 +24,12 @@ cloudinary.config({
 
 const cloudinaryStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: (_req: Request, file: Express.Multer.File) => {
-    return {
-      folder: 'Goshen academy',
-      resource_type: 'auto',
-      use_filename: true,
-      public_id: file.originalname.split('.')[0], // Use the original file name without extension
-    };
-  },
+  params: (_req: Request, file: Express.Multer.File) => ({
+    folder: 'Goshen academy',
+    resource_type: 'auto',
+    use_filename: true,
+    public_id: file.originalname.split('.')[0], // Use the original file name without extension
+  }),
 });
 
 export const multerOptions = () => ({
@@ -46,7 +44,9 @@ export const multerOptions = () => ({
   ) {
     // filter format
     if (
-      !file.originalname.match(/\.(jpeg|png|mov|gif|heic|jpg|mp4|MPEG-4|mkv)$/)
+      !RegExp(/\.(jpeg|png|mov|gif|heic|jpg|mp4|MPEG-4|mkv)$/).exec(
+        file.originalname
+      )
     ) {
       return cb(
         new Error(

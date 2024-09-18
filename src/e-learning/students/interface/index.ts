@@ -22,3 +22,10 @@ export interface SqlRawQueryMapperStudent {
   created_at: Date | null;
   updated_at: Date | null;
 }
+
+export interface Auth {
+  setRefreshToken(refreshToken: string): void;
+  getRefreshToken(): string | null;
+  setPassword(password: string): void;
+  getPassword(): string;
+}

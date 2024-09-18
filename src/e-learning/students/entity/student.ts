@@ -1,18 +1,10 @@
-import {
-  BeforeInsert,
-  Column,
-  Entity,
-  Index,
-  ManyToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { BeforeInsert, Column, Entity, Index, ManyToMany } from 'typeorm';
+import { BaseTimeEntry } from '../../../e-learning/base/base-time-entry';
 import { Lesson } from '../../../e-learning/lessons/lesson/entity/lesson';
+import { Auth } from '../interface';
 
 @Entity({ name: 'student' })
-export class Student {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class Student extends BaseTimeEntry implements Auth {
   @Index({ unique: true })
   @Column('varchar', {
     name: 'student_id',
@@ -53,23 +45,12 @@ export class Student {
   @Column('varchar', { name: 'refresh_token', length: 250, nullable: true })
   refreshToken: string | null;
 
-  @Column('timestamptz', { name: 'created_at', nullable: true })
-  createdAt: string | Date;
-
-  @Column('timestamptz', { name: 'updated_at', nullable: true })
-  updatedAt: string | Date;
-
   @Column('boolean', { name: 'is_admin', nullable: true, default: false })
   isAdmin: boolean;
 
   @BeforeInsert()
   setStudentId() {
     this.studentId = Math.ceil(Math.random() * 10000) + 'GA';
-  }
-
-  @BeforeInsert()
-  updateCreatedAt() {
-    this.createdAt = new Date();
   }
 
   setPassword(password: string) {

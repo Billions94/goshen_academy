@@ -1,4 +1,4 @@
-# fly.toml app configuration file generated for goshen-academy on 2024-08-23T23:38:45+02:00
+# fly.toml app configuration file generated for goshen-academy on 2024-09-01T19:29:40+02:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
@@ -9,7 +9,7 @@ primary_region = 'ams'
 [build]
 
 [http_service]
-  internal_port = 8080
+  internal_port = 3001
   force_https = true
   auto_stop_machines = 'stop'
   auto_start_machines = true
@@ -19,4 +19,4 @@ primary_region = 'ams'
 [[vm]]
   memory = '1gb'
   cpu_kind = 'shared'
-  cpus = 1
+  cpus = 2
