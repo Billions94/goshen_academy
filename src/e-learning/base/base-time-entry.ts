@@ -7,8 +7,8 @@ export class BaseTimeEntry extends BaseEntity {
     nullable: true,
     default: new Date(),
   })
-  createdAt: string | Date;
+  createdAt: Date;
 
   @Column('timestamptz', { name: 'updated_at', nullable: true })
-  updatedAt: string | Date;
+  updatedAt?: Date | null;
 }
