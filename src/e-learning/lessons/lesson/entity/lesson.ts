@@ -22,7 +22,7 @@ export class Lesson extends BaseTimeEntry {
   contents: string;
 
   @ManyToMany(() => Student, (student) => student.lessons, {
-    cascade: true,
+    onDelete: 'CASCADE',
     eager: true,
   })
   @JoinTable({

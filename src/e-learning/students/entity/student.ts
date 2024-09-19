@@ -33,7 +33,9 @@ export class Student extends BaseTimeEntry implements Auth {
   @Column('varchar', { name: 'email', length: 50, nullable: true })
   email: string;
 
-  @ManyToMany(() => Lesson, (lesson) => lesson.students)
+  @ManyToMany(() => Lesson, (lesson) => lesson.students, {
+    onDelete: 'CASCADE',
+  })
   lessons: Lesson[];
 
   @Column('varchar', { name: '', length: 300, nullable: true })

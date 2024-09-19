@@ -11,7 +11,7 @@ const ORMConfig = {
   host: process.env.DB_HOST || 'localhost',
   port: parseInt(<string>process.env.DB_PORT) || 5432,
   username: process.env.DB_USERNAME || 'postgres',
-  password: process.env.DB_PASSWORD || 'lockpostgres',
+  password: process.env.DB_PASSWORD || 'password',
   database: process.env.DB_NAME || 'postgres',
   logging: !process.env.DB_NO_LOGS,
   autoReconnect: true,
