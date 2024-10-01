@@ -1,16 +1,10 @@
-import { Pagination } from '../../../interfaces';
-import { DataResponse, DeleteResponse } from '../../../interfaces/response';
-import { Quiz } from '../../entity/quiz';
-import { QuizInput } from '../../interface';
+import { Order, Pagination, Paging } from '../../../interfaces';
+import { Quiz } from '../../entity/quiz.entity';
 
 export interface QuizServiceInterface {
-  createQuiz(input: QuizInput): Promise<DataResponse>;
-
-  getAllQuiz(): Promise<Pagination<Partial<Quiz>>>;
-
-  getQuiz(id: number): Promise<DataResponse>;
-
-  updateQuiz(id: number, input: QuizInput): Promise<DataResponse>;
-
-  deleteQuiz(id: number): Promise<DeleteResponse>;
+  getQuizzesAndCount(
+    { limit, page }: Paging,
+    order?: Order,
+    where?: any
+  ): Promise<Pagination<Quiz[]>>;
 }

@@ -2,9 +2,9 @@ import { NextFunction, Request, Response } from 'express';
 import { get } from 'lodash';
 import { ExpressMiddlewareInterface, Middleware } from 'routing-controllers';
 import { Inject, Service } from 'typedi';
-import { JwtAuthService } from '../auth/jwtService';
-import { Student as ExpressUser } from '../e-learning/students/entity/student';
-import { StudentRepository } from '../e-learning/students/repository/studentRepository';
+import { JwtAuthService } from '../auth/jwt-auth.service';
+import { Student as ExpressUser } from '../e-learning/students/entity/student.entity';
+import { StudentRepository } from '../e-learning/students/repository/student.repository';
 import Logger from '../utils/logger/logger';
 
 declare global {
@@ -34,6 +34,7 @@ export class AuthGuard implements ExpressMiddlewareInterface {
         return next();
       } else {
         res.send({
+          status: 401,
           error: {
             message: 'Please provide token in Authorization header!',
           },
@@ -47,9 +48,7 @@ export class AuthGuard implements ExpressMiddlewareInterface {
         await this.jwtAuthService.verifyJwtAccessToken(accessToken);
 
       if (decodedToken) {
-        const user = await this.studentRepository.findById(
-          parseInt(String(decodedToken?.id))
-        );
+        const user = await this.studentRepository.findById(decodedToken?.id);
 
         if (user) {
           req.user = user;

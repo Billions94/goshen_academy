@@ -1,14 +1,17 @@
 import { TokenResponse } from '../../../auth/interface';
 
-export interface DataResponse {
+export interface DataResponse<Entity> {
   status: number;
-  data: Data | null;
+  data: Data<Entity> | null;
   tokens?: TokenResponse;
-  error?: { message: string };
+  error?: {
+    message: string;
+    status?: DeleteResponse;
+  };
 }
 
-export interface Data {
-  [key: string]: any;
+export interface Data<Entity> {
+  [key: string]: Partial<Entity>;
 }
 
 export interface DeleteResponse {

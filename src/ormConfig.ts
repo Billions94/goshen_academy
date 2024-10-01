@@ -20,6 +20,7 @@ const ORMConfig = {
   cache: true,
   entities: [
     `src/e-learning/students/entity/**/*.${isCompiled ? 'js' : 'ts'}`,
+    `src/e-learning/course/entity/**/*.${isCompiled ? 'js' : 'ts'}`,
     `src/e-learning/lessons/lesson/entity/**/*.${isCompiled ? 'js' : 'ts'}`,
     `src/e-learning/lessons/lessonCategory/entity/**/*.${
       isCompiled ? 'js' : 'ts'

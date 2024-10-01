@@ -1,4 +1,4 @@
-import { Student } from '../entity/student';
+import { Student } from '../entity/student.entity';
 import { SqlRawQueryMapperStudent } from '../interface';
 
 export const studentResponseMapper = (student: Student): Partial<Student> => ({

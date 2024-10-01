@@ -1,12 +1,14 @@
 import { Express } from 'express';
 import { Action, createExpressServer } from 'routing-controllers';
-import { LessonController } from '../e-learning/lessons/lesson/controller/lessonController';
-import { LessonCategoryController } from '../e-learning/lessons/lessonCategory/controller/lessonCategoryController';
-import { LessonVideoController } from '../e-learning/lessons/lessonVideo/controller/lessonVideoController';
-import { QuizController } from '../e-learning/quiz/controller/quizController';
-import { ResultController } from '../e-learning/result/controller/resultController';
-import { StudentController } from '../e-learning/students/controller/studentController';
+import { CourseController } from '../e-learning/course/controller/course.controller';
+import { LessonController } from '../e-learning/lessons/lesson/controller/lesson.controller';
+import { LessonCategoryController } from '../e-learning/lessons/lessonCategory/controller/lesson-category.controller';
+import { LessonVideoController } from '../e-learning/lessons/lessonVideo/controller/lesson-video.controller';
+import { QuizController } from '../e-learning/quiz/controller/quiz.controller';
+import { ResultController } from '../e-learning/result/controller/result.controller';
+import { StudentController } from '../e-learning/students/controller/student.controller';
 import { AuthGuard } from '../middlewares/authGuard';
+import { PinoLoggerMiddleware } from '../middlewares/requestLogger';
 import { RequireUser } from '../middlewares/requireUser';
 import RequestLogger from '../utils/logger/requestLogger';
 
@@ -23,18 +25,25 @@ export class RouteHandler {
     return createExpressServer({
       cors: { origin: '*' },
       currentUserChecker: ({ request: { user } }: Action) => user,
-      authorizationChecker: ({ request: { user } }: Action) =>
-        user.isAdmin ? true : false,
+      authorizationChecker: ({ request: { user } }: Action) => {
+        return user.isAdmin ? true : false;
+      },
       routePrefix: '/api',
       controllers: [
-        StudentController,
+        CourseController,
         LessonController,
         LessonCategoryController,
         LessonVideoController,
         QuizController,
         ResultController,
+        StudentController,
       ],
-      middlewares: [AuthGuard, RequireUser, RequestLogger],
+      middlewares: [
+        AuthGuard,
+        RequireUser,
+        RequestLogger,
+        PinoLoggerMiddleware,
+      ],
     });
   }
 }

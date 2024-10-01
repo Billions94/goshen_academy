@@ -1,4 +1,4 @@
-import { Student } from '../../e-learning/students/entity/student';
+import { Student } from '../../e-learning/students/entity/student.entity';
 
 export interface JwtPayload {
   id: string;

@@ -1,3 +1,3 @@
-import { LessonCategory } from '../entity/lessonCategory';
+import { LessonCategory } from '../entity/lesson-category.entity';
 
 export interface LessonCategoryInput extends Omit<LessonCategory, 'id'> {}

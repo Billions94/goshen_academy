@@ -1,4 +1,4 @@
-import { Student } from '../../../../e-learning/students/entity/student';
+import { Student } from '../../../students/entity/student.entity';
 import { studentResponseMapper } from '../../../students/mapper/studentResponseMapper';
 import { Lesson } from '../../lesson/entity/lesson';
 

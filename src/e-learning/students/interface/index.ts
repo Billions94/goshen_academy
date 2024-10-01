@@ -1,10 +1,9 @@
-import { Lesson } from '../../../e-learning/lessons/lesson/entity/lesson';
-import { Student } from '../entity/student';
+import { Lesson } from '../../../e-learning/lessons/lesson/entity/lesson.entity';
+import { Student } from '../entity/student.entity';
 
-export interface StudentInput
-  extends Omit<Student, 'createdAt' | 'updatedAt' | 'id'> {
+export interface StudentInput extends Omit<Student, 'password'> {
   password: string;
-  confirmPassword: string;
+  readonly confirmPassword: string;
 }
 
 export interface SqlRawQueryMapperStudent {

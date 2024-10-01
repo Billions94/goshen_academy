@@ -50,7 +50,7 @@ export const multerOptions = () => ({
     ) {
       return cb(
         new Error(
-          'Accepted file types: jpeg, png, gif, heic, jpg, mp4, MPEG-4, mkv'
+          'Accepted file types: jpeg, png, mov, gif, heic, jpg, mp4, MPEG-4, mkv'
         )
       );
     }

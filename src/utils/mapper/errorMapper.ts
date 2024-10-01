@@ -14,7 +14,8 @@ export class ErrorMapper extends Error {
 
   throw(message: string, status?: number): ErrorResponse {
     if (message.includes(ErrorMapper.POSTGRES_UNIQUE_KEY_ERROR)) {
-      message = 'Email address already exists!';
+      message =
+        'This email address is already in use! Please use a different email address';
     }
 
     return {

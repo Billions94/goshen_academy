@@ -1,12 +1,7 @@
-import { DataResponse, DeleteResponse } from '../../../interfaces/response';
-import { ResultInput } from '../../interface';
+import { MessageStatus } from '../../../../core/abstract-entity-crud.service';
+import { DataResponse } from '../../../../e-learning/interfaces/response';
 
-export interface ResultServiceInterface {
-  createResult(input: ResultInput): Promise<DataResponse>;
-
-  getResult(id: number): Promise<DataResponse>;
-
-  updateResult(id: number, update: ResultInput): Promise<DataResponse>;
-
-  deleteResult(id: number): Promise<DeleteResponse>;
+export interface ResultServiceInterface<Entity> {
+  createMany(entities: Entity[]): Promise<DataResponse<Entity[]>>;
+  deleteMany(entities: Entity[]): Promise<MessageStatus>;
 }

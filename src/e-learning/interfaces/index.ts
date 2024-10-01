@@ -1,12 +1,12 @@
 export interface Paging {
-  page: string;
-  limit: string;
+  page: number;
+  limit: number;
 }
 
 export interface Pagination<T> {
   page: number;
   limit: number;
-  results: T[];
+  results: T;
   pageCount: number;
 }
 
@@ -32,3 +32,5 @@ export interface ResultAndCount<T> {
   results: T[];
   count: number;
 }
+
+export type Input<Entity> = Omit<Entity, 'id' | 'createdAt' | 'updatedAt'>;
