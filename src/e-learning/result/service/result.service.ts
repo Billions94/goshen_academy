@@ -163,6 +163,7 @@ export class ResultService
         ...{ page: Number(page), limit: Number(limit) },
         results,
         pageCount: Math.ceil(count / 10),
+        total: count,
       };
     } catch ({ message }) {
       Logger.error(message);
@@ -171,6 +172,7 @@ export class ResultService
         limit: 0,
         results: [],
         pageCount: 0,
+        total: 0,
       };
     }
   }

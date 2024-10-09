@@ -14,9 +14,7 @@ import { Lesson } from '../entity/lesson.entity';
 import { LessonRepository } from '../repository/lesson.repository';
 import { LessonServiceInterface } from './interface';
 
-interface LessonWhereArgs extends FindArgs<Lesson> {
-  where?: Omit<Lesson, 'lessons'>;
-}
+interface LessonWhereArgs extends FindArgs<Lesson> {}
 
 @Service()
 export class LessonService
@@ -117,7 +115,7 @@ export class LessonService
       } else student = undefined;
 
       const newLesson = this.lessonRepository.create(input);
-      newLesson.students = [student];
+      //newLesson.students = [student];
 
       await this.lessonRepository.save(newLesson);
       const lesson = { id: newLesson.id };
@@ -150,6 +148,7 @@ export class LessonService
         ...pagination,
         pageCount: Math.ceil(count / Number(limit)),
         results,
+        total: count,
       };
     } catch ({ message }) {
       Logger.error(message);
@@ -158,6 +157,7 @@ export class LessonService
         page: 0,
         pageCount: 0,
         results: [],
+        total: 0,
       };
     }
   }

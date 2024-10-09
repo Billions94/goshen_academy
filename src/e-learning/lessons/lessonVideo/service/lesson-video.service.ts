@@ -13,9 +13,7 @@ import { LessonVideo } from '../entity/lesson-video.entity';
 import { LessonVideoRepository } from '../repository/lesson-video.repository';
 import { LessonVideoInterface } from './interface';
 
-interface LessonVideoServiceArgs extends FindArgs<LessonVideo> {
-  where?: Omit<LessonVideo, 'lessons'>;
-}
+interface LessonVideoServiceArgs extends FindArgs<LessonVideo> {}
 
 @Service()
 export class LessonVideoService
@@ -50,12 +48,6 @@ export class LessonVideoService
     queryBuilder: SelectQueryBuilder<LessonVideo>,
     args: LessonVideoServiceArgs
   ): void {
-    if (args?.where?.title) {
-      queryBuilder.andWhere('lesson_video."title" ILIKE :title', {
-        title: `%${args.where.title}%`,
-      });
-    }
-
     if (args?.where?.lesson?.id) {
       queryBuilder.andWhere('lesson_video."lessonId" = :lessonId', {
         lessonId: args.where.lesson.id,
@@ -67,8 +59,8 @@ export class LessonVideoService
     queryBuilder: SelectQueryBuilder<LessonVideo>,
     args?: LessonVideoServiceArgs | undefined
   ): void {
-    if (args?.where?.title) {
-      queryBuilder.orderBy('lesson_video."title"', 'ASC');
+    if (args?.where?.createdAt) {
+      queryBuilder.orderBy('lesson_video."createdAt"', 'ASC');
     }
   }
 
@@ -90,7 +82,6 @@ export class LessonVideoService
       }
 
       const newLessonVideo = this.lessonVideoRepository.create({
-        title: input.title,
         lesson: { id: input.lesson.id },
       });
 

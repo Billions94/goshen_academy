@@ -5,14 +5,12 @@ import {
   Index,
   JoinTable,
   ManyToMany,
-  OneToMany,
 } from 'typeorm';
 import { BaseTimeEntry } from '../../../core/base/base-time-entry';
-import { Lesson } from '../../../e-learning/lessons/lesson/entity/lesson.entity';
 import { Course } from '../../course/entity/course.entity';
-import { Result } from '../../result/entity/result.entity';
 import { Auth } from '../interface';
 
+@Index('IDX_Student_tb', ['id'], { unique: true })
 @Entity({ name: 'student' })
 export class Student extends BaseTimeEntry implements Auth {
   @Index({ unique: true })
@@ -37,6 +35,9 @@ export class Student extends BaseTimeEntry implements Auth {
 
   @Column('varchar', { length: 150, nullable: true })
   address: string | null;
+
+  @Column('varchar', { length: 20, nullable: true })
+  phone: string | null;
 
   @Index('IDX_Student_dateOfBirth')
   @Column('date', { nullable: false })
@@ -68,14 +69,6 @@ export class Student extends BaseTimeEntry implements Auth {
   })
   courses: Course[];
 
-  @ManyToMany(() => Lesson, (lesson) => lesson.students, {
-    onDelete: 'CASCADE',
-  })
-  lessons: Lesson[];
-
-  @OneToMany(() => Result, (result) => result.student)
-  results: Result[];
-
   @Column('varchar', { length: 300, nullable: true })
   image: string | null;
 
@@ -87,6 +80,9 @@ export class Student extends BaseTimeEntry implements Auth {
 
   @Column('boolean', { nullable: true, default: false })
   isAdmin: boolean;
+
+  @Column('date', { nullable: true, default: null })
+  enrollmentDate: Date | null;
 
   @BeforeInsert()
   setStudentId() {

@@ -121,6 +121,7 @@ export class QuizService
         ...pagination,
         pageCount: Math.ceil(count / limit),
         results,
+        total: count,
       };
     } catch ({ message }) {
       Logger.error(message);
@@ -129,6 +130,7 @@ export class QuizService
         page: 0,
         pageCount: 0,
         results: [],
+        total: 0,
       };
     }
   }

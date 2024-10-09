@@ -13,9 +13,7 @@ import { LessonCategoryInput } from '../interface';
 import { LessonCategoryRepository } from '../repository/lesson-category.repository';
 import { LessonCategoryServiceInterface } from './interface';
 
-interface LessonCategoryServiceArgs extends FindArgs<LessonCategory> {
-  where?: Omit<LessonCategory, 'lessons'>;
-}
+interface LessonCategoryServiceArgs extends FindArgs<LessonCategory> {}
 
 @Service()
 export class LessonCategoryService

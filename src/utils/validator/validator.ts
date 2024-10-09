@@ -1,5 +1,5 @@
 import { Service } from 'typedi';
-import { Course } from '../../e-learning/course/entity/course.entity';
+import { CreateCourseInput } from '../../e-learning/course/service/interface/create-course.input';
 import { Input } from '../../e-learning/interfaces';
 import { Lesson } from '../../e-learning/lessons/lesson/entity/lesson.entity';
 import { LessonCategory } from '../../e-learning/lessons/lessonCategory/entity/lesson-category.entity';
@@ -39,7 +39,7 @@ export class Validator {
       throw new Error('Passwords do not match');
   }
 
-  public static validateCourseInput(input: Input<Course>) {
+  public static validateCourseInput(input: Input<CreateCourseInput>) {
     if (this.isEmpty(input.title))
       throw new Error('Title field cannot be empty');
 
@@ -73,11 +73,6 @@ export class Validator {
 
     if (this.isEmpty(input.contents))
       throw new Error('Contents field cannot be empty');
-
-    if (!input.students)
-      throw new Error(
-        'There must be students relation, please provide students relation.'
-      );
   }
 
   public static validateQuizInput(input: Input<Quiz>) {
@@ -106,9 +101,6 @@ export class Validator {
   }
 
   public static validateLessonVideoInput(input: Input<LessonVideo>) {
-    if (this.isEmpty(input.title))
-      throw new Error('Title field cannot be empty');
-
     if (this.isEmpty(input.url)) throw new Error('URL field cannot be empty');
 
     if (!input.lesson)

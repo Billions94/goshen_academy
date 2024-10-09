@@ -8,6 +8,7 @@ export interface Pagination<T> {
   limit: number;
   results: T;
   pageCount: number;
+  total?: number;
 }
 
 export interface Order {

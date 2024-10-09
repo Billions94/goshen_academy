@@ -3,6 +3,7 @@ import { BaseTimeEntry } from '../../../core/base/base-time-entry';
 import { Course } from '../../../e-learning/course/entity/course.entity';
 import { Lesson } from '../../lessons/lesson/entity/lesson.entity';
 
+@Index('IDX_Quiz_tb', ['id'], { unique: true })
 @Entity({ name: 'quiz' })
 export class Quiz extends BaseTimeEntry {
   @Column('text', { name: 'question', nullable: false })
@@ -23,7 +24,7 @@ export class Quiz extends BaseTimeEntry {
   @Column('text', { name: 'correct_answer', nullable: false })
   correctAnswer: string;
 
-  @ManyToOne(() => Lesson, (lesson) => lesson.quizzes, {
+  @ManyToOne(() => Lesson, (lesson) => lesson.id, {
     eager: true,
     cascade: true,
   })
@@ -35,7 +36,6 @@ export class Quiz extends BaseTimeEntry {
     eager: true,
     cascade: true,
   })
-  @Index('IDX_Quiz_course')
   @JoinColumn({ name: 'courseId' })
   course: Course;
 }

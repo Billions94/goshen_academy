@@ -13,6 +13,7 @@ export class DataBase {
         await DataBase.dataSource.initialize();
         await DataBase.dataSource.synchronize();
         Logger.info('Connected to database ✅');
+        // await insertStudents(); //Insert mocked students
       }
     } catch (e) {
       Logger.error(e);

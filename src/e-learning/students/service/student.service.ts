@@ -25,9 +25,7 @@ import { studentResponseMapper } from '../mapper/studentResponseMapper';
 import { StudentRepository } from '../repository/student.repository';
 import { StudentServiceInterface } from './interface';
 
-interface StudentServiceWhereArgs extends FindArgs<Student> {
-  where?: Omit<Student, 'lessons'>;
-}
+interface StudentServiceWhereArgs extends FindArgs<Student> {}
 
 @Service()
 export class StudentService
@@ -224,6 +222,7 @@ export class StudentService
         ...pagination,
         results,
         pageCount: Math.ceil(count / pagination.limit),
+        total: count,
       };
     } catch ({ message }) {
       Logger.error(message);
@@ -232,6 +231,7 @@ export class StudentService
         limit: 0,
         results: [],
         pageCount: 0,
+        total: 0,
       };
     }
   }
@@ -250,13 +250,16 @@ export class StudentService
           page: Number(page),
           pageCount: Math.ceil(count / Number(limit)),
           results: results as Student[],
+          total: count,
         };
       } else {
+        const results = (await this.mapStudents()).results as Student[];
         return {
           limit: 0,
           page: 0,
           pageCount: 0,
-          results: (await this.mapStudents()).results as Student[],
+          results,
+          total: results.length,
         };
       }
     } catch ({ message }) {

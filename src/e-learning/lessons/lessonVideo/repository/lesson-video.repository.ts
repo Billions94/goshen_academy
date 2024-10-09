@@ -21,7 +21,6 @@ export class LessonVideoRepository extends Repository<LessonVideo> {
     const lessonVideo = await this.getById(id);
 
     if (lessonVideo) {
-      lessonVideo.title = input.title;
       lessonVideo.lesson = input.lesson;
       lessonVideo.url = input.url;
       await this.save(lessonVideo);

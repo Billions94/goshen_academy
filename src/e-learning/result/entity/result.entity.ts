@@ -6,16 +6,20 @@ import {
   JoinColumn,
   ManyToOne,
 } from 'typeorm';
-import { BaseEntity } from '../../../core/base/base-entity';
+import { BaseTimeEntry } from '../../../core/base/base-time-entry';
 import { Quiz } from '../../quiz/entity/quiz.entity';
 import { Student } from '../../students/entity/student.entity';
 
+@Index('IDX_Result_tb', ['id'], { unique: true })
 @Entity({ name: 'result' })
-export class Result extends BaseEntity {
+export class Result extends BaseTimeEntry {
   @Column('int', { nullable: false })
   score: number;
 
-  @ManyToOne(() => Student, { eager: true, cascade: true })
+  @ManyToOne(() => Student, (student) => student.id, {
+    eager: true,
+    cascade: true,
+  })
   @Index('IDX_Result_student')
   @JoinColumn({ name: 'studentId' })
   student: Student;

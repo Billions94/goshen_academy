@@ -1,5 +1,6 @@
 import { Express } from 'express';
 import { Action, createExpressServer } from 'routing-controllers';
+import { CourseInvitationController } from '../e-learning/course-invitation/controller/course-invitation.controller';
 import { CourseController } from '../e-learning/course/controller/course.controller';
 import { LessonController } from '../e-learning/lessons/lesson/controller/lesson.controller';
 import { LessonCategoryController } from '../e-learning/lessons/lessonCategory/controller/lesson-category.controller';
@@ -26,11 +27,13 @@ export class RouteHandler {
       cors: { origin: '*' },
       currentUserChecker: ({ request: { user } }: Action) => user,
       authorizationChecker: ({ request: { user } }: Action) => {
+        if (!user) return false;
         return user.isAdmin ? true : false;
       },
       routePrefix: '/api',
       controllers: [
         CourseController,
+        CourseInvitationController,
         LessonController,
         LessonCategoryController,
         LessonVideoController,

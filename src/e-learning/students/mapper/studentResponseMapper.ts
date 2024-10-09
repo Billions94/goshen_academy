@@ -8,12 +8,15 @@ export const studentResponseMapper = (student: Student): Partial<Student> => ({
   lastName: student.lastName,
   dateOfBirth: student.dateOfBirth,
   nationality: student.nationality,
-  lessons: student.lessons,
+  courses: student.courses,
+  //lessons: student.lessons,
   address: student.address,
   email: student.email,
+  phone: student.phone,
   image: student.image,
   createdAt: student.createdAt,
   updatedAt: student.updatedAt,
+  enrollmentDate: student.enrollmentDate,
 });
 
 export const sqlRawQueryMapper = (student: SqlRawQueryMapperStudent) => ({

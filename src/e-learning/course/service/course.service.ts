@@ -1,9 +1,10 @@
 import { Inject, Service } from 'typedi';
-import { SelectQueryBuilder } from 'typeorm';
+import { In, SelectQueryBuilder } from 'typeorm';
 import {
   AbstractEntityCrudService,
   FindArgs,
 } from '../../../core/abstract-entity-crud.service';
+import { DataBase } from '../../../db/init';
 import {
   Input,
   Order,
@@ -11,6 +12,7 @@ import {
   Paging,
 } from '../../../e-learning/interfaces';
 import { DataResponse } from '../../../e-learning/interfaces/response';
+import { Lesson } from '../../../e-learning/lessons/lesson/entity/lesson.entity';
 import { Student } from '../../../e-learning/students/entity/student.entity';
 import Logger from '../../../utils/logger/logger';
 import { ErrorMapper } from '../../../utils/mapper/errorMapper';
@@ -18,16 +20,17 @@ import { Validator } from '../../../utils/validator/validator';
 import { Course } from '../entity/course.entity';
 import { CourseRepository } from '../repository/course.repository';
 import { CourseServiceInterface } from './interface';
+import { CreateCourseInput } from './interface/create-course.input';
 
-interface CourseServiceWhereArgs extends FindArgs<Course> {
-  where?: Omit<Course, 'lessons'>;
-}
+interface CourseServiceWhereArgs extends FindArgs<Course> {}
 
 @Service()
 export class CourseService
   extends AbstractEntityCrudService<Course, CourseServiceWhereArgs>
   implements CourseServiceInterface
 {
+  private readonly manager = DataBase.dataSource.manager;
+
   constructor(
     @Inject()
     private readonly courseRepository: CourseRepository,
@@ -35,6 +38,7 @@ export class CourseService
     private readonly errorResponseMapper: ErrorMapper
   ) {
     super(courseRepository, 'course', errorResponseMapper);
+    Logger.info('CourseService initialized');
   }
 
   protected addAuthorizedUserCondition(
@@ -72,7 +76,7 @@ export class CourseService
   }
 
   public async create(
-    input: Input<Course>,
+    input: Input<CreateCourseInput>,
     authUser?: Student
   ): Promise<DataResponse<Course>> {
     if (!authUser) {
@@ -91,8 +95,37 @@ export class CourseService
       return this.errorResponseMapper.throw('Course already exists', 409);
     }
 
-    const course = this.courseRepository.create(input);
-    course.students = [authUser];
+    const lesson = await this.manager.findOneOrFail(Lesson, {
+      where: { id: input.lessonId },
+    });
+
+    await this.manager
+      .createQueryBuilder()
+      .update(Course)
+      .set({ isLatest: false })
+      .execute();
+
+    let course: Course;
+
+    course = this.courseRepository.create({
+      students: [authUser],
+      lessons: [lesson],
+      isLatest: true,
+    });
+
+    if (input.lessonIds) {
+      const lessons = await this.manager.findBy(Lesson, {
+        id: In(input.lessonIds),
+      });
+
+      for (const lesson of lessons) {
+        course = this.courseRepository.create({
+          students: [authUser],
+          lessons: [lesson],
+          isLatest: true,
+        });
+      }
+    }
 
     await this.courseRepository.save(course);
     const newCourse = { id: course.id };
@@ -126,6 +159,7 @@ export class CourseService
         ...pagination,
         results,
         pageCount: Math.ceil(count / pagination.limit),
+        total: count,
       };
     } catch ({ message }) {
       Logger.error(message);
@@ -134,6 +168,7 @@ export class CourseService
         limit: 0,
         results: [],
         pageCount: 0,
+        total: 0,
       };
     }
   }

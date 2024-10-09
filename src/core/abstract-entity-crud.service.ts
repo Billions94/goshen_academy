@@ -6,7 +6,7 @@ import Logger from '../utils/logger/logger';
 import { ErrorMapper } from '../utils/mapper/errorMapper';
 
 export interface FindArgs<Entity> {
-  where?: any;
+  where?: Entity;
   authUser?: Student;
   relations?: string[];
   pagination?: Omit<Pagination<Entity>, 'results' | 'pageCount'>;

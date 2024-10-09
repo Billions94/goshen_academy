@@ -22,6 +22,7 @@ import { DataResponse } from '../../../e-learning/interfaces/response';
 import { Student } from '../../../e-learning/students/entity/student.entity';
 import { Course } from '../entity/course.entity';
 import { CourseService } from '../service/course.service';
+import { CreateCourseInput } from '../service/interface/create-course.input';
 
 @Service()
 @JsonController('/courses')
@@ -33,7 +34,7 @@ export class CourseController {
   @Post()
   async createCourse(
     @CurrentUser() authUser: Student,
-    @Body() courseInput: Input<Course>
+    @Body() courseInput: Input<CreateCourseInput>
   ): Promise<DataResponse<Course>> {
     return this.courseService.create(courseInput, authUser);
   }
