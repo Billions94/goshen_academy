@@ -1,24 +1,27 @@
-import { DataSourceOptions } from 'typeorm';
-import path from 'path';
 import dotenv from 'dotenv';
+import path from 'path';
 import * as process from 'process';
+import { DataSourceOptions } from 'typeorm';
 dotenv.config();
 
 const isCompiled = path.extname(__filename).includes('js');
 
 const ORMConfig = {
   type: 'postgres',
-  host: process.env.DB_HOST,
-  port: parseInt(<string>process.env.DB_PORT),
-  username: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME || 'typeorm',
+  host: process.env.DB_HOST || 'localhost',
+  port: parseInt(<string>process.env.DB_PORT) || 5432,
+  username: process.env.DB_USERNAME || 'postgres',
+  password: process.env.DB_PASSWORD || 'password',
+  database: process.env.DB_NAME || 'postgres',
   logging: !process.env.DB_NO_LOGS,
   autoReconnect: true,
   reconnectTries: Number.MAX_VALUE,
   reconnectInterval: 2000,
+  cache: true,
   entities: [
     `src/e-learning/students/entity/**/*.${isCompiled ? 'js' : 'ts'}`,
+    `src/e-learning/course/entity/**/*.${isCompiled ? 'js' : 'ts'}`,
+    `src/e-learning/course-invitation/entity/**/*.${isCompiled ? 'js' : 'ts'}`,
     `src/e-learning/lessons/lesson/entity/**/*.${isCompiled ? 'js' : 'ts'}`,
     `src/e-learning/lessons/lessonCategory/entity/**/*.${
       isCompiled ? 'js' : 'ts'

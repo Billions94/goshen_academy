@@ -1,10 +1,10 @@
+import { NextFunction, Request, Response } from 'express';
 import { get } from 'lodash';
-import { RequestHandler } from 'express';
-import { Service } from 'typedi';
-import { Inject } from 'typescript-ioc';
-import { JwtAuthService } from '../auth/jwtService';
-import { Student as ExpressUser } from '../e-learning/students/entity/student';
-import { StudentRepository } from '../e-learning/students/repository/studentRepository';
+import { ExpressMiddlewareInterface, Middleware } from 'routing-controllers';
+import { Inject, Service } from 'typedi';
+import { JwtAuthService } from '../auth/jwt-auth.service';
+import { Student as ExpressUser } from '../e-learning/students/entity/student.entity';
+import { StudentRepository } from '../e-learning/students/repository/student.repository';
 import Logger from '../utils/logger/logger';
 
 declare global {
@@ -17,13 +17,14 @@ declare global {
 }
 
 @Service()
-export class AuthGuard {
-  @Inject
+@Middleware({ type: 'before' })
+export class AuthGuard implements ExpressMiddlewareInterface {
+  @Inject()
   private readonly jwtAuthService: JwtAuthService;
-  @Inject
+  @Inject()
   private readonly studentRepository: StudentRepository;
 
-  init: RequestHandler = async (req, res, next) => {
+  async use(req: Request, res: Response, next: NextFunction) {
     if (!req.headers.authorization) {
       if (
         req.method === 'GET' ||
@@ -33,6 +34,7 @@ export class AuthGuard {
         return next();
       } else {
         res.send({
+          status: 401,
           error: {
             message: 'Please provide token in Authorization header!',
           },
@@ -46,9 +48,7 @@ export class AuthGuard {
         await this.jwtAuthService.verifyJwtAccessToken(accessToken);
 
       if (decodedToken) {
-        const user = await this.studentRepository.findById(
-          parseInt(String(decodedToken?.id))
-        );
+        const user = await this.studentRepository.findById(decodedToken?.id);
 
         if (user) {
           req.user = user;
@@ -58,17 +58,13 @@ export class AuthGuard {
         const { accessToken, user, errorMessage } =
           await this.jwtAuthService.refreshTokens(refreshToken);
 
-        if (errorMessage) {
-          Logger.warn('Jwt token expired');
-          return next();
-        }
-        if (accessToken) {
-          res.setHeader('x-access-token', accessToken);
-        }
+        if (errorMessage) Logger.warn('Jwt token expired');
 
+        req.headers['authorization'] = `Bearer ${accessToken}`;
+        req.headers['x-refresh'] = refreshToken;
         req.user = user;
         return next();
       }
     }
-  };
+  }
 }

@@ -1,17 +1,14 @@
-import { Inject } from 'typescript-ioc';
-import { StudentRepository } from '../../e-learning/students/repository/studentRepository';
-import { StudentInput } from '../../e-learning/students/interface';
-import { ErrorMapper } from '../mapper/errorMapper';
-import { ErrorResponse } from '../../interfaces';
 import { Service } from 'typedi';
+import { CreateCourseInput } from '../../e-learning/course/service/interface/create-course.input';
+import { Input } from '../../e-learning/interfaces';
+import { Lesson } from '../../e-learning/lessons/lesson/entity/lesson.entity';
+import { LessonCategory } from '../../e-learning/lessons/lessonCategory/entity/lesson-category.entity';
+import { LessonVideo } from '../../e-learning/lessons/lessonVideo/entity/lesson-video.entity';
+import { Quiz } from '../../e-learning/quiz/entity/quiz.entity';
+import { StudentInput } from '../../e-learning/students/interface';
 
 @Service()
 export class Validator {
-  //@Inject
-  //private static readonly studentRepository: StudentRepository;
-  @Inject
-  private static readonly customErrorResponse: ErrorMapper;
-
   /**
    * @remarks This is a custom method.
    * Throws specific input field errors if the field is empty or
@@ -19,68 +16,101 @@ export class Validator {
    * @param input - A set of input fields to be validated.
    * @returns A promise of type void.
    */
-  public static validateRegisterInput(input: StudentInput) {
-    if (input.firstName?.trim().length <= 0)
+  public static validateRegisterInput(input: Input<StudentInput>) {
+    if (this.isEmpty(input.firstName))
       throw new Error('Firstname field cannot be empty');
 
-    if (input.lastName?.trim().length <= 0)
+    if (this.isEmpty(input.lastName))
       throw new Error('Lastname field cannot be empty');
 
-    if (input.age <= 0) throw new Error('Age field cannot be zero or negative');
+    if (input.dateOfBirth === null)
+      throw new Error('Date of Birth field cannot be empty');
 
-    if (input.email?.trim().length <= 0)
+    if (input.email && this.isEmpty(input.email))
       throw new Error('Email field cannot be empty');
 
-    if (input.password?.trim().length <= 0)
+    if (this.isEmpty(input.password))
       throw new Error('Password field cannot be empty');
 
-    if (input.confirmPassword?.trim().length <= 0)
+    if (this.isEmpty(input.confirmPassword))
       throw new Error('Confirm Password field cannot be empty');
 
     if (input.confirmPassword !== input.password)
       throw new Error('Passwords do not match');
   }
 
-  /**
-   * @remarks This is a custom method.
-   * Throws an error if an email already exists in a connected
-   * database or datasource
-   * @param email - An email to compare with an existing email in
-   * a connected database or datasource
-   * @returns A promise of type void.
-   */
-  // public static async isExistsByEmail(email: string): Promise<void> {
-  //   if ((await this.studentRepository.isExistByEmail(email))?.email === email)
-  //     throw new Error('Email already exists');
-  // }
+  public static validateCourseInput(input: Input<CreateCourseInput>) {
+    if (this.isEmpty(input.title))
+      throw new Error('Title field cannot be empty');
 
-  /**
-   * @remarks This is a custom method.
-   * Throws an error for an entity passed as param, if they do not exist.
-   * The id has to be from the entity passed as matcher.
-   * @param id - Identifier for the entity e.g. x.id, with x being the entity.
-   * @param matcher - Matcher or alias for the entity in lowercase
-   * e.g. 'user' or 'post' or 'space'
-   * @returns A promise of type void.
-   * @beta
-   */
-  //   public static async throwErrorIfNotExist(
-  //     id: number,
-  //     matcher?: string
-  //   ): Promise<Partial<ErrorResponse | undefined>> {
-  //     switch (matcher) {
-  //       case 'student':
-  //         const student = await this.studentRepository.isExists(id);
-  //         if (!student) {
-  //           return this.customErrorResponse.throw('entity not found', 400);
-  //         }
-  //         break;
-  //       default:
-  //         return this.customErrorResponse.throw(
-  //           'Generic error could not determine error Object',
-  //           500
-  //         );
-  //     }
-  //   }
-  // }
+    if (this.isEmpty(input.description))
+      throw new Error('Description field cannot be empty');
+
+    if (!input.students)
+      throw new Error(
+        'There must be students relation, please provide students relation.'
+      );
+    else if (!input.lessons)
+      throw new Error(
+        'There must be lessons relation, please provide lessons relation.'
+      );
+  }
+
+  public static validateLessonCategoryInput(input: Input<LessonCategory>) {
+    if (this.isEmpty(input.name)) throw new Error('Name field cannot be empty');
+
+    if (this.isEmpty(input.description))
+      throw new Error('Description field cannot be empty');
+
+    if (!input.lessons)
+      throw new Error(
+        'There must be lessons relation, please provide lessons relation.'
+      );
+  }
+
+  public static validateLessonInput(input: Input<Lesson>) {
+    if (this.isEmpty(input.name)) throw new Error('Name field cannot be empty');
+
+    if (this.isEmpty(input.contents))
+      throw new Error('Contents field cannot be empty');
+  }
+
+  public static validateQuizInput(input: Input<Quiz>) {
+    if (this.isEmpty(input.answer_1))
+      throw new Error('Answer 1 field cannot be empty');
+
+    if (this.isEmpty(input.answer_2))
+      throw new Error('Answer 2 field cannot be empty');
+
+    if (this.isEmpty(input.answer_3))
+      throw new Error('Answer 3 field cannot be empty');
+
+    if (this.isEmpty(input.answer_4))
+      throw new Error('Answer 4 field cannot be empty');
+
+    if (this.isEmpty(input.correctAnswer))
+      throw new Error('Correct Answer field cannot be empty');
+
+    if (this.isEmpty(input.question))
+      throw new Error('Question field cannot be empty');
+
+    if (!input.lesson)
+      throw new Error(
+        'There must be lesson relation, please provide lesson relation.'
+      );
+  }
+
+  public static validateLessonVideoInput(input: Input<LessonVideo>) {
+    if (this.isEmpty(input.url)) throw new Error('URL field cannot be empty');
+
+    if (!input.lesson)
+      throw new Error(
+        'There must be lesson relation, please provide lesson relation.'
+      );
+  }
+
+  private static isEmpty(input: string | undefined): boolean {
+    if (!input || input === undefined) return true;
+    return input.trim().length <= 0;
+  }
 }

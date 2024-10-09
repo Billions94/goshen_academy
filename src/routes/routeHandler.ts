@@ -1,43 +1,52 @@
-import { Express, Router } from 'express';
-import listEndpoints from 'express-list-endpoints';
-import { Server } from 'typescript-rest';
-import { Inject } from 'typescript-ioc';
-import { StudentController } from '../e-learning/students/controller/studentController';
-import { LessonController } from '../e-learning/lessons/lesson/controller/lessonController';
-import { LessonCategoryController } from '../e-learning/lessons/lessonCategory/controller/lessonCategoryController';
-import { QuizController } from '../e-learning/quiz/controller/quizController';
-import { ResultController } from '../e-learning/result/controller/resultController';
-import { LessonVideoController } from '../e-learning/lessons/lessonVideo/controller/lessonVideoController';
+import { Express } from 'express';
+import { Action, createExpressServer } from 'routing-controllers';
+import { CourseInvitationController } from '../e-learning/course-invitation/controller/course-invitation.controller';
+import { CourseController } from '../e-learning/course/controller/course.controller';
+import { LessonController } from '../e-learning/lessons/lesson/controller/lesson.controller';
+import { LessonCategoryController } from '../e-learning/lessons/lessonCategory/controller/lesson-category.controller';
+import { LessonVideoController } from '../e-learning/lessons/lessonVideo/controller/lesson-video.controller';
+import { QuizController } from '../e-learning/quiz/controller/quiz.controller';
+import { ResultController } from '../e-learning/result/controller/result.controller';
+import { StudentController } from '../e-learning/students/controller/student.controller';
+import { AuthGuard } from '../middlewares/authGuard';
+import { PinoLoggerMiddleware } from '../middlewares/requestLogger';
+import { RequireUser } from '../middlewares/requireUser';
+import RequestLogger from '../utils/logger/requestLogger';
 
 /**
  * Class for handling routers and controllers
  */
 export class RouteHandler {
-  @Inject
-  private readonly studentController: StudentController;
-  @Inject
-  private readonly lessonController: LessonController;
-  @Inject
-  private readonly lessonCategoryController: LessonCategoryController;
-  @Inject
-  private readonly lessonVideoController: LessonVideoController;
-  @Inject
-  private readonly quizController: QuizController;
-  @Inject
-  private readonly resultController: ResultController;
-
   /**
-   * @remarks This is a custom method.
-   * Creates routes for all classes we annotate with decorators from typescript-rest
-   * and utilizes all controllers specified in the patterns param in the loadControllers method
-   * @param server - Express Application Server.
-   * @returns Void.
-   * @beta
+   * Initializes and configures an Express server with routing-controllers and custom middlewares.
+   *
+   * @returns An Express application instance with the configured routes and middlewares.
    */
-  initialize(server: Express): void {
-    const router = Router();
-    Server.buildServices(server);
-    Server.loadControllers(router, 'controller/*', __dirname);
-    console.table(listEndpoints(server));
+  public static initialize(): Express {
+    return createExpressServer({
+      cors: { origin: '*' },
+      currentUserChecker: ({ request: { user } }: Action) => user,
+      authorizationChecker: ({ request: { user } }: Action) => {
+        if (!user) return false;
+        return user.isAdmin ? true : false;
+      },
+      routePrefix: '/api',
+      controllers: [
+        CourseController,
+        CourseInvitationController,
+        LessonController,
+        LessonCategoryController,
+        LessonVideoController,
+        QuizController,
+        ResultController,
+        StudentController,
+      ],
+      middlewares: [
+        AuthGuard,
+        RequireUser,
+        RequestLogger,
+        PinoLoggerMiddleware,
+      ],
+    });
   }
 }

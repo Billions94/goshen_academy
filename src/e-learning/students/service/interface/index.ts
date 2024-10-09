@@ -1,18 +1,12 @@
-import { Student } from '../../entity/student';
-import { StudentInput } from '../../interface';
-import { DeleteResponse, DataResponse } from '../../../../interfaces/response';
 import { TokenResponse } from '../../../../auth/interface';
-import { LoginInput } from '../../../../interfaces';
+import { LoginInput, Pagination } from '../../../interfaces';
+import { DataResponse } from '../../../interfaces/response';
+import { Student } from '../../entity/student.entity';
 
-export interface StudentServiceInterface {
-  createStudent(studentInput: StudentInput): Promise<DataResponse>;
+export interface StudentServiceInterface<Entity> {
   login(loginInput: LoginInput): Promise<Partial<TokenResponse>>;
-  getStudents(): Promise<Partial<Student[]>>;
-  getStudent(id: number): Promise<DataResponse>;
-  updateStudent(
-    id: number,
-    studentInput: StudentInput,
-    student?: Student
-  ): Promise<Partial<DataResponse>>;
-  deleteStudent(id: number): Promise<DeleteResponse>;
+
+  getStudents(): Promise<Partial<Pagination<Partial<Student[]>>>>;
+
+  getCurrentStudent(student: Student): Promise<DataResponse<Entity>>;
 }
