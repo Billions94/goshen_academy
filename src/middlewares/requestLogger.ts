@@ -19,9 +19,11 @@ export class RequestLogger implements ExpressMiddlewareInterface {
     const { page, limit, key, value } = req.query;
 
     logger.info(
-      `${req.method} request to ${process.env.LOCAL_URL}:${
-        process.env.PORT
-      }/api${req.path}${
+      `${req.method} request to ${
+        process.env.NODE_ENV === 'development'
+          ? process.env.LOCAL_URL
+          : process.env.PROD_URL
+      }:${process.env.PORT}/api${req.path}${
         Object.keys(req.query).length > 0
           ? `?${
               'page=' +
