@@ -35,3 +35,8 @@ export interface ResultAndCount<T> {
 }
 
 export type Input<Entity> = Omit<Entity, 'id' | 'createdAt' | 'updatedAt'>;
+
+export interface ResetPasswordInput {
+  oldPassword: string;
+  newPassword: string;
+}

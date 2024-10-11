@@ -12,8 +12,13 @@ import {
 } from 'routing-controllers';
 import { Inject, Service } from 'typedi';
 import { AuthService } from '../../../auth/auth.service';
-import { TokenResponse } from '../../../auth/interface';
-import { Input, LoginInput, Order, Pagination, Paging } from '../../interfaces';
+import {
+  Input,
+  Order,
+  Pagination,
+  Paging,
+  ResetPasswordInput,
+} from '../../interfaces';
 import { DataResponse, DeleteResponse } from '../../interfaces/response';
 import { Student } from '../entity/student.entity';
 import { StudentInput } from '../interface';
@@ -74,9 +79,21 @@ export class StudentController {
     return this.studentService.create(input);
   }
 
-  @Post('/login')
-  async login(@Body() input: LoginInput): Promise<Partial<TokenResponse>> {
-    return this.authService.login(input);
+  @Authorized()
+  @Patch('/current-student')
+  async updateCurrentStudent(
+    @CurrentUser() authUser: Student,
+    @Body() input: Input<StudentInput>
+  ): Promise<DataResponse<Student>> {
+    return this.studentService.update(authUser.id, input, authUser);
+  }
+
+  @Patch('/reset-password')
+  async resetPassword(
+    @CurrentUser() student: Student,
+    @Body() { oldPassword, newPassword }: ResetPasswordInput
+  ): Promise<DeleteResponse> {
+    return this.studentService.resetPassword(student, oldPassword, newPassword);
   }
 
   @Patch('/:id')

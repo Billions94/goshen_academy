@@ -3,8 +3,9 @@ import { LoginInput } from '../e-learning/interfaces';
 import { Student } from '../e-learning/students/entity/student.entity';
 import { StudentRepository } from '../e-learning/students/repository/student.repository';
 import Logger from '../utils/logger/logger';
+import { ErrorMapper } from '../utils/mapper/errorMapper';
 import { CredentialManager } from './credential/credential.manager';
-import { TokenResponse } from './interface';
+import { AuthUser, TokenResponse } from './interface';
 import { JwtAuthService } from './jwt-auth.service';
 
 @Service()
@@ -15,7 +16,9 @@ export class AuthService {
     @Inject()
     private readonly credentialManager: CredentialManager,
     @Inject()
-    private readonly studentRepository: StudentRepository
+    private readonly studentRepository: StudentRepository,
+    @Inject()
+    private readonly errorMapper: ErrorMapper
   ) {}
 
   public async register(student: Student) {
@@ -62,13 +65,30 @@ export class AuthService {
 
         return { accessToken, refreshToken };
       } else {
-        return {
-          error: { message: 'Invalid email or password' },
-        };
+        return this.errorMapper.throw('Invalid email or password');
       }
     } catch ({ message }) {
       Logger.error(message);
-      return { error: { message } };
+      return this.errorMapper.throw(message);
+    }
+  }
+
+  public async logout(authUser: AuthUser) {
+    try {
+      const user = await this.studentRepository.findOneOrFail({
+        where: { id: authUser.id },
+      });
+
+      if (!user) {
+        return this.errorMapper.throw('User not found');
+      }
+
+      user.setRefreshToken(null);
+      await this.studentRepository.save(user);
+      return true;
+    } catch ({ message }) {
+      Logger.error(message);
+      return this.errorMapper.throw(message);
     }
   }
 }

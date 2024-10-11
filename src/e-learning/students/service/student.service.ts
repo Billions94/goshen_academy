@@ -1,3 +1,4 @@
+import * as bcryptService from 'bcrypt';
 import { Inject, Service } from 'typedi';
 import { SelectQueryBuilder } from 'typeorm';
 import { AuthService } from '../../../auth/auth.service';
@@ -9,7 +10,7 @@ import Logger from '../../../utils/logger/logger';
 import { ErrorMapper } from '../../../utils/mapper/errorMapper';
 import { Validator } from '../../../utils/validator/validator';
 import { Input, Order, Pagination, Paging } from '../../interfaces';
-import { DataResponse } from '../../interfaces/response';
+import { DataResponse, DeleteResponse } from '../../interfaces/response';
 import { Student } from '../entity/student.entity';
 import { StudentInput } from '../interface';
 import { studentResponseMapper } from '../mapper/studentResponseMapper';
@@ -218,7 +219,7 @@ export class StudentService
       }
 
       const student = await this.studentRepository.updateStudent(
-        id,
+        authUser ? authUser.id : id,
         input,
         authUser ? authUser : <Student>{}
       );
@@ -227,6 +228,31 @@ export class StudentService
     } catch ({ message }) {
       Logger.error(message);
       return this.errorResponseMapper.throw(message);
+    }
+  }
+
+  public async resetPassword(
+    student: Student,
+    oldPassword: string,
+    newPassword: string
+  ): Promise<DeleteResponse> {
+    try {
+      if (await bcryptService.compare(oldPassword, student.getPassword())) {
+        student.setPassword('');
+        const hashedPassword = await bcryptService.hash(
+          newPassword,
+          parseInt(`${process.env.SALT_FACTOR}`)
+        );
+
+        student.setPassword(hashedPassword);
+        await this.studentRepository.save(student);
+        return { status: 'success' };
+      }
+
+      return { status: 'failed' };
+    } catch ({ message }) {
+      Logger.error(message);
+      return { status: 'failed' };
     }
   }
 }

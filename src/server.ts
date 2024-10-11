@@ -24,7 +24,13 @@ export class Server {
   public async start(): Promise<void> {
     await DataBase.connect();
     this.httpServer = this.server.listen(this.port, '0.0.0.0', () => {
-      Logger.info(`Server is listening on http://localhost:${this.port}`);
+      Logger.info(
+        `Server is listening on ${
+          process.env.NODE_ENV === 'development'
+            ? `http://localhost:${this.port}`
+            : `${process.env.PROD_URL}`
+        }`
+      );
       console.table(listEndpoints(this.server));
     });
   }
