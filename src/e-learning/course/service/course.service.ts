@@ -1,5 +1,6 @@
 import { Inject, Service } from 'typedi';
 import { In, SelectQueryBuilder } from 'typeorm';
+import { AuthUser } from '../../../auth/interface';
 import {
   AbstractEntityCrudService,
   FindArgs,
@@ -13,7 +14,6 @@ import {
 } from '../../../e-learning/interfaces';
 import { DataResponse } from '../../../e-learning/interfaces/response';
 import { Lesson } from '../../../e-learning/lessons/lesson/entity/lesson.entity';
-import { Student } from '../../../e-learning/students/entity/student.entity';
 import Logger from '../../../utils/logger/logger';
 import { ErrorMapper } from '../../../utils/mapper/errorMapper';
 import { Validator } from '../../../utils/validator/validator';
@@ -43,7 +43,7 @@ export class CourseService
 
   protected addAuthorizedUserCondition(
     queryBuilder: SelectQueryBuilder<Course>,
-    authUser: Student
+    authUser: AuthUser
   ): void {
     queryBuilder.andWhere('course.studentId = :studentId', {
       studentId: authUser.id,
@@ -77,7 +77,7 @@ export class CourseService
 
   public async create(
     input: Input<CreateCourseInput>,
-    authUser?: Student
+    authUser?: AuthUser
   ): Promise<DataResponse<Course>> {
     if (!authUser) {
       return this.errorResponseMapper.throw(
@@ -176,7 +176,7 @@ export class CourseService
   public async update(
     id: string,
     input: Input<Course>,
-    authUser?: Student
+    authUser?: AuthUser
   ): Promise<DataResponse<Course>> {
     if (!authUser) {
       return this.errorResponseMapper.throw(

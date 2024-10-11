@@ -28,3 +28,9 @@ export interface Auth {
   setPassword(password: string): void;
   getPassword(): string;
 }
+
+export enum Gender {
+  MALE = 'Male',
+  FEMALE = 'Female',
+  OTHER = 'Other',
+}

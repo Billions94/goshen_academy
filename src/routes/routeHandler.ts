@@ -1,5 +1,6 @@
 import { Express } from 'express';
 import { Action, createExpressServer } from 'routing-controllers';
+import { JobController } from '../core/jobs/job.controller';
 import { CourseInvitationController } from '../e-learning/course-invitation/controller/course-invitation.controller';
 import { CourseController } from '../e-learning/course/controller/course.controller';
 import { LessonController } from '../e-learning/lessons/lesson/controller/lesson.controller';
@@ -40,6 +41,7 @@ export class RouteHandler {
         QuizController,
         ResultController,
         StudentController,
+        JobController,
       ],
       middlewares: [
         AuthGuard,

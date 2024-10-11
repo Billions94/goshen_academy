@@ -1,6 +1,7 @@
 import {
   Authorized,
   Body,
+  CurrentUser,
   Delete,
   Get,
   JsonController,
@@ -9,6 +10,7 @@ import {
   Post,
 } from 'routing-controllers';
 import { Inject, Service } from 'typedi';
+import { AuthUser } from '../../../../auth/interface';
 import { DataResponse, DeleteResponse } from '../../../interfaces/response';
 import { LessonCategory } from '../entity/lesson-category.entity';
 import { LessonCategoryInput } from '../interface';
@@ -23,9 +25,10 @@ export class LessonCategoryController {
   @Authorized()
   @Post()
   async createLesson(
+    @CurrentUser() authUser: AuthUser,
     @Body() input: LessonCategoryInput
   ): Promise<DataResponse<LessonCategory>> {
-    return this.lessonCategoryService.create(input);
+    return this.lessonCategoryService.create(input, authUser);
   }
 
   @Get()
@@ -43,15 +46,19 @@ export class LessonCategoryController {
   @Authorized()
   @Patch('/:id')
   async updateLesson(
+    @CurrentUser() authUser: AuthUser,
     @Param('id') id: string,
     @Body() input: LessonCategoryInput
   ): Promise<DataResponse<LessonCategory>> {
-    return this.lessonCategoryService.update(id, input);
+    return this.lessonCategoryService.update(id, input, authUser);
   }
 
   @Authorized()
   @Delete('/:id')
-  async deleteLesson(@Param('id') id: string): Promise<DeleteResponse> {
-    return this.lessonCategoryService.deleteById(id);
+  async deleteLesson(
+    @CurrentUser() authUser: AuthUser,
+    @Param('id') id: string
+  ): Promise<DeleteResponse> {
+    return this.lessonCategoryService.deleteById(id, authUser);
   }
 }

@@ -11,6 +11,7 @@ import {
   QueryParams,
 } from 'routing-controllers';
 import { Inject, Service } from 'typedi';
+import { AuthService } from '../../../auth/auth.service';
 import { TokenResponse } from '../../../auth/interface';
 import { Input, LoginInput, Order, Pagination, Paging } from '../../interfaces';
 import { DataResponse, DeleteResponse } from '../../interfaces/response';
@@ -24,13 +25,18 @@ import { StudentService } from '../service/student.service';
 export class StudentController {
   @Inject()
   private readonly studentService: StudentService;
+  @Inject()
+  private readonly authService: AuthService;
 
   @Get()
   async getStudents(
     @QueryParams() { page, limit, key: k, value }: Order & Paging
   ): Promise<Partial<Pagination<Partial<Student[]>>>> {
     const key = studentColumnMapper[k];
-    return this.studentService.getStudents({ page, limit }, { key, value });
+    return this.studentService.getStudentsAndCount(
+      { page, limit },
+      { key, value }
+    );
   }
 
   @Authorized()
@@ -39,6 +45,14 @@ export class StudentController {
     @CurrentUser() student: Student
   ): Promise<DataResponse<Student>> {
     return this.studentService.getCurrentStudent(student);
+  }
+
+  @Authorized()
+  @Get('/enrolled-students')
+  async getEnrolledStudents(
+    @CurrentUser() authUser: Student
+  ): Promise<DataResponse<Student[]>> {
+    return this.studentService.getEnrolledStudents(authUser);
   }
 
   @Get('/:id')
@@ -62,7 +76,7 @@ export class StudentController {
 
   @Post('/login')
   async login(@Body() input: LoginInput): Promise<Partial<TokenResponse>> {
-    return this.studentService.login(input);
+    return this.authService.login(input);
   }
 
   @Patch('/:id')

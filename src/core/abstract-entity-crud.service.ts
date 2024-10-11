@@ -1,4 +1,5 @@
 import { ObjectLiteral, Repository, SelectQueryBuilder } from 'typeorm';
+import { AuthUser } from '../auth/interface';
 import { Input, Order, Pagination } from '../e-learning/interfaces';
 import { DataResponse } from '../e-learning/interfaces/response';
 import { Student } from '../e-learning/students/entity/student.entity';
@@ -45,7 +46,7 @@ export abstract class AbstractEntityCrudService<
    */
   protected abstract addAuthorizedUserCondition(
     queryBuilder: SelectQueryBuilder<Entity>,
-    authUser: Student
+    authUser: AuthUser
   ): void;
 
   /**
@@ -82,13 +83,13 @@ export abstract class AbstractEntityCrudService<
 
   public abstract create(
     input: Input<Entity>,
-    authUser?: Student
+    authUser?: AuthUser
   ): Promise<DataResponse<Entity>>;
 
   public abstract update(
     id: string,
     input: Input<Entity>,
-    authUser?: Student
+    authUser?: AuthUser
   ): Promise<DataResponse<Entity>>;
 
   protected addPagination(
@@ -170,8 +171,12 @@ export abstract class AbstractEntityCrudService<
     return this.getFindManyQueryBuilder(args).getManyAndCount();
   }
 
-  public async deleteById(id: string): Promise<MessageStatus> {
+  public async deleteById(
+    id: string,
+    authUser?: AuthUser
+  ): Promise<MessageStatus> {
     try {
+      if (!authUser) throw new Error('Auth user is required.');
       if (!this.findById(id)) throw new Error(this.NOT_FOUND_ERROR);
 
       await this.repository.delete(id);

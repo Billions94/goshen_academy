@@ -1,5 +1,6 @@
 import { Inject, Service } from 'typedi';
 import { SelectQueryBuilder } from 'typeorm';
+import { AuthUser } from '../../../../auth/interface';
 import {
   AbstractEntityCrudService,
   FindArgs,
@@ -34,7 +35,7 @@ export class LessonService
 
   protected addAuthorizedUserCondition(
     queryBuilder: SelectQueryBuilder<Lesson>,
-    authUser: Student
+    authUser: AuthUser
   ): void {
     if (authUser) {
       if (authUser.isAdmin) {
@@ -98,7 +99,7 @@ export class LessonService
 
   public async create(
     input: Input<Lesson & { studentIds?: string | string[] }>,
-    authUser?: Student
+    authUser?: AuthUser
   ): Promise<DataResponse<Lesson>> {
     try {
       if (!authUser?.isAdmin) {
@@ -115,8 +116,6 @@ export class LessonService
       } else student = undefined;
 
       const newLesson = this.lessonRepository.create(input);
-      //newLesson.students = [student];
-
       await this.lessonRepository.save(newLesson);
       const lesson = { id: newLesson.id };
 
@@ -165,7 +164,7 @@ export class LessonService
   public async update(
     id: string,
     input: Input<Lesson>,
-    authUser?: Student
+    authUser?: AuthUser
   ): Promise<DataResponse<Lesson>> {
     try {
       if (!authUser?.isAdmin) {

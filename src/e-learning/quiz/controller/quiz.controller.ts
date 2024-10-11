@@ -1,6 +1,7 @@
 import {
   Authorized,
   Body,
+  CurrentUser,
   Delete,
   Get,
   JsonController,
@@ -10,6 +11,7 @@ import {
   QueryParams,
 } from 'routing-controllers';
 import { Inject, Service } from 'typedi';
+import { AuthUser } from '../../../auth/interface';
 import { Order, Pagination, Paging } from '../../../e-learning/interfaces';
 import { DataResponse, DeleteResponse } from '../../interfaces/response';
 import { Quiz } from '../entity/quiz.entity';
@@ -24,8 +26,11 @@ export class QuizController {
 
   @Authorized()
   @Post()
-  async createQuiz(@Body() input: QuizInput): Promise<DataResponse<Quiz>> {
-    return this.quizService.create(input);
+  async createQuiz(
+    @CurrentUser() authUser: AuthUser,
+    @Body() input: QuizInput
+  ): Promise<DataResponse<Quiz>> {
+    return this.quizService.create(input, authUser);
   }
 
   @Get()
@@ -46,15 +51,19 @@ export class QuizController {
   @Authorized()
   @Patch('/:id')
   async updateQuiz(
+    @CurrentUser() authUser: AuthUser,
     @Param('id') id: string,
     @Body() input: QuizInput
   ): Promise<DataResponse<Quiz>> {
-    return this.quizService.update(id, input);
+    return this.quizService.update(id, input, authUser);
   }
 
   @Authorized()
   @Delete('/:id')
-  async deleteQuiz(@Param('id') id: string): Promise<DeleteResponse> {
-    return this.quizService.deleteById(id);
+  async deleteQuiz(
+    @CurrentUser() authUser: AuthUser,
+    @Param('id') id: string
+  ): Promise<DeleteResponse> {
+    return this.quizService.deleteById(id, authUser);
   }
 }
