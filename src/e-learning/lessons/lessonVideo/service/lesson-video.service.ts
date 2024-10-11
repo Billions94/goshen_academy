@@ -1,5 +1,6 @@
 import { Inject, Service } from 'typedi';
 import { SelectQueryBuilder } from 'typeorm';
+import { AuthUser } from '../../../../auth/interface';
 import {
   AbstractEntityCrudService,
   FindArgs,
@@ -8,7 +9,6 @@ import Logger from '../../../../utils/logger/logger';
 import { ErrorMapper } from '../../../../utils/mapper/errorMapper';
 import { Input } from '../../../interfaces';
 import { DataResponse } from '../../../interfaces/response';
-import { Student } from '../../../students/entity/student.entity';
 import { LessonVideo } from '../entity/lesson-video.entity';
 import { LessonVideoRepository } from '../repository/lesson-video.repository';
 import { LessonVideoInterface } from './interface';
@@ -31,7 +31,7 @@ export class LessonVideoService
 
   protected addAuthorizedUserCondition(
     queryBuilder: SelectQueryBuilder<LessonVideo>,
-    authUser: Student
+    authUser: AuthUser
   ): void {
     if (authUser && authUser.isAdmin) {
       queryBuilder.andWhere('lesson_video."isAdmin" = true');
@@ -66,7 +66,7 @@ export class LessonVideoService
 
   public async create(
     input: Input<LessonVideo>,
-    authUser?: Student
+    authUser?: AuthUser
   ): Promise<DataResponse<LessonVideo>> {
     try {
       if (!authUser?.isAdmin) {
@@ -105,7 +105,7 @@ export class LessonVideoService
   public async update(
     id: string,
     input: Input<LessonVideo>,
-    authUser?: Student
+    authUser?: AuthUser
   ): Promise<DataResponse<LessonVideo>> {
     try {
       if (!authUser) {

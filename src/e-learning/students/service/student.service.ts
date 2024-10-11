@@ -1,8 +1,6 @@
 import { Inject, Service } from 'typedi';
 import { SelectQueryBuilder } from 'typeorm';
-import { CredentialManager } from '../../../auth/credential/credential.manager';
-import { TokenResponse } from '../../../auth/interface';
-import { JwtAuthService } from '../../../auth/jwt-auth.service';
+import { AuthService } from '../../../auth/auth.service';
 import {
   AbstractEntityCrudService,
   FindArgs,
@@ -10,14 +8,7 @@ import {
 import Logger from '../../../utils/logger/logger';
 import { ErrorMapper } from '../../../utils/mapper/errorMapper';
 import { Validator } from '../../../utils/validator/validator';
-import {
-  Input,
-  LoginInput,
-  Order,
-  Pagination,
-  Paging,
-  ResultAndCount,
-} from '../../interfaces';
+import { Input, Order, Pagination, Paging } from '../../interfaces';
 import { DataResponse } from '../../interfaces/response';
 import { Student } from '../entity/student.entity';
 import { StudentInput } from '../interface';
@@ -34,9 +25,7 @@ export class StudentService
 {
   constructor(
     @Inject()
-    private readonly jwtAuthService: JwtAuthService,
-    @Inject()
-    private readonly credentialManager: CredentialManager,
+    private readonly authService: AuthService,
     @Inject()
     private readonly studentRepository: StudentRepository,
     @Inject()
@@ -99,7 +88,7 @@ export class StudentService
   ): void {
     if (args && args.order) {
       const { key, value } = args.order;
-      queryBuilder.orderBy(`student.${key}`, value);
+      queryBuilder.orderBy(`student."${key}"`, value);
     }
   }
   public async create(
@@ -108,22 +97,14 @@ export class StudentService
   ): Promise<DataResponse<Student>> {
     try {
       Validator.validateRegisterInput(input);
-
       const newStudent = this.studentRepository.create(input);
-      const hashPassword = await this.credentialManager.hashPassword(
-        input.password
+      const { accessToken, refreshToken } = await this.authService.register(
+        newStudent
       );
-      newStudent.setPassword(hashPassword);
-
-      await this.studentRepository.save(newStudent);
-      const { accessToken, refreshToken } =
-        await this.jwtAuthService.tokenGenerator(newStudent);
-
-      const student = { id: newStudent.id };
 
       return {
         status: 201,
-        data: { student },
+        data: { student: { id: newStudent.id } },
         tokens: { accessToken, refreshToken },
       };
     } catch ({ message }) {
@@ -131,67 +112,6 @@ export class StudentService
       return this.errorResponseMapper.throw(message);
     }
   }
-  public async update(
-    id: string,
-    input: Input<Student>,
-    authUser?: Student
-  ): Promise<DataResponse<Student>> {
-    try {
-      if (!authUser || !authUser.isAdmin) {
-        return this.errorResponseMapper.throw(
-          'Unauthorized access to update student',
-          401
-        );
-      }
-
-      const existingStudent = await this.studentRepository.findOne({
-        where: { id },
-      });
-
-      if (!existingStudent) {
-        return this.errorResponseMapper.throw('Student not found', 404);
-      }
-
-      const student = await this.studentRepository.updateStudent(
-        id,
-        input,
-        authUser ? authUser : <Student>{}
-      );
-
-      return { status: 203, data: { student } };
-    } catch ({ message }) {
-      Logger.error(message);
-      return this.errorResponseMapper.throw(message);
-    }
-  }
-
-  async login({
-    email,
-    password,
-  }: LoginInput): Promise<Partial<TokenResponse>> {
-    try {
-      const student = await this.credentialManager.verifyCredentials(
-        email,
-        password
-      );
-
-      if (student) {
-        const { accessToken, refreshToken } =
-          await this.jwtAuthService.tokenGenerator(student);
-        await this.credentialManager.hashRefreshToken(refreshToken, student);
-
-        return { accessToken, refreshToken };
-      } else {
-        return {
-          error: { message: 'Invalid email or password' },
-        };
-      }
-    } catch ({ message }) {
-      Logger.error(message);
-      return { error: { message } };
-    }
-  }
-
   async getCurrentStudent(student: Student): Promise<DataResponse<Student>> {
     try {
       return { status: 200, data: { student: studentResponseMapper(student) } };
@@ -220,7 +140,7 @@ export class StudentService
 
       return {
         ...pagination,
-        results,
+        results: results.map(studentResponseMapper) as Student[],
         pageCount: Math.ceil(count / pagination.limit),
         total: count,
       };
@@ -236,72 +156,29 @@ export class StudentService
     }
   }
 
-  async getStudents(
-    query?: Paging,
-    order?: Order
-  ): Promise<Partial<Pagination<Partial<Student[]>>>> {
+  async getEnrolledStudents(
+    authUser?: Student
+  ): Promise<DataResponse<Student[]>> {
     try {
-      if (query?.limit && query.page && order?.key && order?.value) {
-        const { limit, page } = query;
-        const { count, results } = await this.mapStudents({ query, order });
-
-        return {
-          limit: Number(limit),
-          page: Number(page),
-          pageCount: Math.ceil(count / Number(limit)),
-          results: results as Student[],
-          total: count,
-        };
-      } else {
-        const results = (await this.mapStudents()).results as Student[];
-        return {
-          limit: 0,
-          page: 0,
-          pageCount: 0,
-          results,
-          total: results.length,
-        };
+      if (!authUser?.isAdmin) {
+        throw new Error('Unauthorized access');
       }
+
+      const enrollendStudents = await this.studentRepository
+        .createQueryBuilder('student')
+        .where('student."enrollmentDate" IS NOT NULL')
+        .getMany();
+
+      return {
+        status: 200,
+        data: {
+          results: enrollendStudents.map(studentResponseMapper) as Student[],
+        },
+      };
     } catch ({ message }) {
       Logger.error(message);
-      return {
-        limit: 0,
-        page: 0,
-        pageCount: 0,
-        results: [],
-      };
+      return this.errorResponseMapper.throw(message);
     }
-  }
-
-  async mapStudents(options?: {
-    query: Paging;
-    order: Order;
-  }): Promise<ResultAndCount<Partial<Student>>> {
-    if (!options) {
-      const results = await this.studentRepository
-        .find()
-        .then((students) => students.map(studentResponseMapper));
-
-      return {
-        results,
-        count: results.length,
-      };
-    }
-
-    const [students, count] =
-      await this.studentRepository.getStudentsAndPaginate(
-        {
-          key: options.order.key,
-          value: options.order.value,
-        },
-        options.query.limit,
-        options.query.page
-      );
-
-    return {
-      count,
-      results: students.map(studentResponseMapper),
-    };
   }
 
   async getStudentByStudentId(
@@ -313,6 +190,40 @@ export class StudentService
       )) as any;
 
       return { status: 200, data: { student } };
+    } catch ({ message }) {
+      Logger.error(message);
+      return this.errorResponseMapper.throw(message);
+    }
+  }
+
+  public async update(
+    id: string,
+    input: Input<Student>,
+    authUser?: Student
+  ): Promise<DataResponse<Student>> {
+    try {
+      if (!authUser || !authUser.isAdmin) {
+        return this.errorResponseMapper.throw(
+          'Unauthorized access to update student',
+          401
+        );
+      }
+
+      const existingStudent = await this.studentRepository.findOne({
+        where: { id },
+      });
+
+      if (!existingStudent) {
+        return this.errorResponseMapper.throw('Student not found', 404);
+      }
+
+      const student = await this.studentRepository.updateStudent(
+        id,
+        input,
+        authUser ? authUser : <Student>{}
+      );
+
+      return { status: 203, data: { student } };
     } catch ({ message }) {
       Logger.error(message);
       return this.errorResponseMapper.throw(message);

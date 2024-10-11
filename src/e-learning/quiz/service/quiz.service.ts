@@ -1,6 +1,6 @@
-import { Student } from 'src/e-learning/students/entity/student.entity';
 import { Inject, Service } from 'typedi';
 import { SelectQueryBuilder } from 'typeorm';
+import { AuthUser } from '../../../auth/interface';
 import {
   AbstractEntityCrudService,
   FindArgs,
@@ -33,7 +33,7 @@ export class QuizService
 
   protected addAuthorizedUserCondition(
     queryBuilder: SelectQueryBuilder<Quiz>,
-    authUser: Student
+    authUser: AuthUser
   ): void {
     if (authUser && authUser.isAdmin) {
       queryBuilder.andWhere('quiz."isAdmin" = true');
@@ -75,7 +75,7 @@ export class QuizService
 
   public async create(
     input: Input<Quiz>,
-    authUser?: Student
+    authUser?: AuthUser
   ): Promise<DataResponse<Quiz>> {
     try {
       if (!authUser) {
@@ -138,7 +138,7 @@ export class QuizService
   public async update(
     id: string,
     input: Input<Quiz>,
-    authUser?: Student
+    authUser?: AuthUser
   ): Promise<DataResponse<Quiz>> {
     try {
       if (!authUser?.isAdmin) {

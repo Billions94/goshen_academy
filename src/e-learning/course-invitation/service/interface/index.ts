@@ -11,7 +11,7 @@ export interface CourseInvitationServiceInterface<Entity> {
     | ErrorResponse
     | {
         message: string;
-        course: Entity;
+        status: boolean;
       }
   >;
 }

@@ -1,5 +1,6 @@
 import { Inject, Service } from 'typedi';
 import { SelectQueryBuilder } from 'typeorm';
+import { AuthUser } from '../../../auth/interface';
 import {
   AbstractEntityCrudService,
   FindArgs,
@@ -14,9 +15,7 @@ import { Result } from '../entity/result.entity';
 import { ResultRepository } from '../repository/result.repository';
 import { ResultServiceInterface } from './interface';
 
-interface ResultServiceWhereArgs extends FindArgs<Result> {
-  where?: Omit<Result, 'student' | 'quiz'>;
-}
+interface ResultServiceWhereArgs extends FindArgs<Result> {}
 
 @Service()
 export class ResultService
@@ -95,7 +94,7 @@ export class ResultService
 
   public async create(
     input: Input<Result>,
-    authUser?: Student
+    authUser?: AuthUser
   ): Promise<DataResponse<Result>> {
     try {
       if (!authUser) {
@@ -119,7 +118,7 @@ export class ResultService
 
   async createMany(
     input: Input<Result>[],
-    authUser?: Student
+    authUser?: AuthUser
   ): Promise<DataResponse<Result[]>> {
     try {
       if (!authUser) {
@@ -180,7 +179,7 @@ export class ResultService
   public async update(
     id: string,
     input: Input<Result>,
-    authUser?: Student
+    authUser?: AuthUser
   ): Promise<DataResponse<Result>> {
     try {
       if (!authUser) {

@@ -27,7 +27,7 @@ export class Lesson extends BaseTimeEntry implements ParticipationProperty {
     cascade: true,
   })
   @Index('IDX_Lesson_category')
-  @JoinColumn({ name: 'categoryId' })
+  @JoinColumn({ name: 'lessonCategoryId' })
   category: LessonCategory;
 
   @ManyToOne(() => Course, (course) => course.lessons, {

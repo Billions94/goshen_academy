@@ -12,6 +12,7 @@ import {
 } from 'routing-controllers';
 import { MessageStatus } from 'src/core/abstract-entity-crud.service';
 import { Inject, Service } from 'typedi';
+import { AuthUser } from '../../../auth/interface';
 import {
   Input,
   Order,
@@ -19,7 +20,6 @@ import {
   Paging,
 } from '../../../e-learning/interfaces';
 import { DataResponse } from '../../../e-learning/interfaces/response';
-import { Student } from '../../../e-learning/students/entity/student.entity';
 import { Course } from '../entity/course.entity';
 import { CourseService } from '../service/course.service';
 import { CreateCourseInput } from '../service/interface/create-course.input';
@@ -33,7 +33,7 @@ export class CourseController {
   @Authorized()
   @Post()
   async createCourse(
-    @CurrentUser() authUser: Student,
+    @CurrentUser() authUser: AuthUser,
     @Body() courseInput: Input<CreateCourseInput>
   ): Promise<DataResponse<Course>> {
     return this.courseService.create(courseInput, authUser);
@@ -60,7 +60,7 @@ export class CourseController {
   @Authorized()
   @Patch('/:id')
   async updateCourse(
-    @CurrentUser() authUser: Student,
+    @CurrentUser() authUser: AuthUser,
     @Param('id') id: string,
     @Body() courseInput: Input<Course>
   ): Promise<DataResponse<Course>> {

@@ -1,6 +1,7 @@
 import {
   Authorized,
   Body,
+  CurrentUser,
   Delete,
   Get,
   JsonController,
@@ -10,6 +11,7 @@ import {
   QueryParams,
 } from 'routing-controllers';
 import { Inject, Service } from 'typedi';
+import { AuthUser } from '../../../auth/interface';
 import { Order, Pagination, Paging } from '../../../e-learning/interfaces';
 import { DataResponse, DeleteResponse } from '../../interfaces/response';
 import { Result } from '../entity/result.entity';
@@ -25,9 +27,10 @@ export class ResultController {
   @Authorized()
   @Post()
   async createResult(
+    @CurrentUser() authUser: AuthUser,
     @Body() input: ResultInput
   ): Promise<DataResponse<Result>> {
-    return this.resultService.create(input);
+    return this.resultService.create(input, authUser);
   }
 
   @Get()
@@ -48,15 +51,19 @@ export class ResultController {
   @Authorized()
   @Patch('/:id')
   async updateResult(
+    @CurrentUser() authUser: AuthUser,
     @Param('id') id: string,
     @Body() input: ResultInput
   ): Promise<DataResponse<Result>> {
-    return this.resultService.update(id, input);
+    return this.resultService.update(id, input, authUser);
   }
 
   @Authorized()
   @Delete('/:id')
-  async deleteResult(@Param('id') id: string): Promise<DeleteResponse> {
-    return this.resultService.deleteById(id);
+  async deleteResult(
+    @CurrentUser() authUser: AuthUser,
+    @Param('id') id: string
+  ): Promise<DeleteResponse> {
+    return this.resultService.deleteById(id, authUser);
   }
 }

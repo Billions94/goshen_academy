@@ -7,13 +7,22 @@ import { Course } from '../../../e-learning/course/entity/course.entity';
 export class CourseInvitation extends BaseTimeEntry {
   @Index('Course_Invitation_email', ['email'], { unique: true })
   @Column()
-  email: string; // Email of the invited student
+  email: string;
 
   @Column('boolean', { default: false })
-  isAccepted: boolean; // Whether the invitation has been accepted
+  isSent: boolean;
+
+  @Column('boolean', { default: false })
+  isAccepted: boolean;
 
   @Column('boolean', { default: true })
-  isValid: boolean; // Whether the invitation
+  isValid: boolean;
+
+  @Column('timestamptz', {
+    default: () => `NOW() + INTERVAL '1 hour'`,
+    nullable: true,
+  })
+  expiresAt: Date | null;
 
   @ManyToOne(() => Course, (course) => course.invitations, {
     eager: true,

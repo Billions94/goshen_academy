@@ -25,3 +25,5 @@ export interface RefreshTokenResponse {
   refreshToken: string;
   user: Student;
 }
+
+export interface AuthUser extends Pick<Student, 'id' | 'isAdmin' | 'courses'> {}

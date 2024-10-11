@@ -8,8 +8,9 @@ import {
   Post,
 } from 'routing-controllers';
 import { Inject, Service } from 'typedi';
-import { Input } from '../../../e-learning/interfaces';
-import { Student } from '../../../e-learning/students/entity/student.entity';
+import { AuthUser } from '../../../auth/interface';
+import { ErrorResponse, Input } from '../../../e-learning/interfaces';
+import { DataResponse } from '../../../e-learning/interfaces/response';
 import { CourseInvitation } from '../entity/course-invitation.entity';
 import { CourseInvitationService } from '../service/course-invitation.service';
 
@@ -22,28 +23,57 @@ export class CourseInvitationController {
   @Authorized()
   @Post()
   async createCourseInvitation(
-    @CurrentUser() authUser: Student,
+    @CurrentUser() authUser: AuthUser,
     @Body() input: Input<CourseInvitation>
-  ) {
+  ): Promise<DataResponse<CourseInvitation>> {
     return this.courseInvitationService.create(input, authUser);
   }
 
   @Authorized()
   @Post('/:invitationId/accept')
   async acceptInvitation(
+    @CurrentUser() authUser: AuthUser,
     @Param('invitationId') invitationId: string,
     @Body() input: Input<CourseInvitation>
-  ) {
-    return this.courseInvitationService.acceptInvitation(invitationId, input);
+  ): Promise<
+    | ErrorResponse
+    | {
+        message: string;
+        status: boolean;
+      }
+  > {
+    return this.courseInvitationService.acceptInvitation(
+      invitationId,
+      input,
+      authUser
+    );
   }
 
   @Authorized()
   @Patch('/:invitationId')
   async updateInvitation(
-    @CurrentUser() authUser: Student,
+    @CurrentUser() authUser: AuthUser,
     @Param('invitationId') invitationId: string,
     @Body() input: Input<CourseInvitation>
-  ) {
+  ): Promise<DataResponse<CourseInvitation>> {
     return this.courseInvitationService.update(invitationId, input, authUser);
+  }
+
+  @Authorized()
+  @Patch('/:invitationId/revoke')
+  async revokeInvitation(
+    @CurrentUser() authUser: AuthUser,
+    @Param('invitationId') invitationId: string
+  ): Promise<
+    | ErrorResponse
+    | {
+        message: string;
+        status: boolean;
+      }
+  > {
+    return this.courseInvitationService.revokeInvitation(
+      invitationId,
+      authUser
+    );
   }
 }

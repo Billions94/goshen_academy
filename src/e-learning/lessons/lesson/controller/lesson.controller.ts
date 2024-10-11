@@ -1,6 +1,7 @@
 import {
   Authorized,
   Body,
+  CurrentUser,
   Delete,
   Get,
   JsonController,
@@ -10,6 +11,7 @@ import {
   QueryParams,
 } from 'routing-controllers';
 import { Inject, Service } from 'typedi';
+import { AuthUser } from '../../../../auth/interface';
 import {
   Input,
   Order,
@@ -29,9 +31,10 @@ export class LessonController {
   @Authorized()
   @Post()
   async createLesson(
+    @CurrentUser() authUser: AuthUser,
     @Body() input: Input<Lesson>
   ): Promise<DataResponse<Lesson>> {
-    return this.lessonService.create(input);
+    return this.lessonService.create(input, authUser);
   }
 
   @Get()
@@ -60,15 +63,19 @@ export class LessonController {
   @Authorized()
   @Patch('/:id')
   async updateLesson(
+    @CurrentUser() authUser: AuthUser,
     @Param('id') id: string,
     @Body() input: Input<Lesson>
   ): Promise<DataResponse<Lesson>> {
-    return this.lessonService.update(id, input);
+    return this.lessonService.update(id, input, authUser);
   }
 
   @Authorized()
   @Delete('/:id')
-  async deleteLesson(@Param('id') id: string): Promise<DeleteResponse> {
-    return this.lessonService.deleteById(id);
+  async deleteLesson(
+    @CurrentUser() authUser: AuthUser,
+    @Param('id') id: string
+  ): Promise<DeleteResponse> {
+    return this.lessonService.deleteById(id, authUser);
   }
 }

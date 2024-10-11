@@ -1,6 +1,6 @@
-import { Student } from 'src/e-learning/students/entity/student.entity';
 import { Inject, Service } from 'typedi';
 import { SelectQueryBuilder } from 'typeorm';
+import { AuthUser } from '../../../../auth/interface';
 import {
   AbstractEntityCrudService,
   FindArgs,
@@ -31,7 +31,7 @@ export class LessonCategoryService
 
   protected addAuthorizedUserCondition(
     queryBuilder: SelectQueryBuilder<LessonCategory>,
-    authUser: Student
+    authUser: AuthUser
   ): void {
     if (authUser && authUser.isAdmin) {
       queryBuilder.andWhere('lesson_category."isAdmin" = true');
@@ -77,7 +77,7 @@ export class LessonCategoryService
 
   public async create(
     input: LessonCategoryInput,
-    authUser?: Student
+    authUser?: AuthUser
   ): Promise<DataResponse<LessonCategory>> {
     try {
       if (!authUser?.isAdmin) {
@@ -103,7 +103,7 @@ export class LessonCategoryService
   async update(
     id: string,
     input: LessonCategoryInput,
-    authUser?: Student
+    authUser?: AuthUser
   ): Promise<DataResponse<LessonCategory>> {
     try {
       if (!authUser) {

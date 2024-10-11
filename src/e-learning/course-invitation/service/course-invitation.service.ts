@@ -1,16 +1,20 @@
 import { NotFoundError } from 'routing-controllers';
 import { Inject, Service } from 'typedi';
-import { Repository, SelectQueryBuilder } from 'typeorm';
+import { SelectQueryBuilder } from 'typeorm';
+import { AuthUser } from '../../../auth/interface';
 import {
   AbstractEntityCrudService,
   FindArgs,
 } from '../../../core/abstract-entity-crud.service';
+import { CourseInvitationJobService } from '../../../core/jobs/course-invitation-job.service';
+import { CourseRepository } from '../../../e-learning/course/repository/course.repository';
 import { DataResponse } from '../../../e-learning/interfaces/response';
-import { Student } from '../../../e-learning/students/entity/student.entity';
+import Logger from '../../../utils/logger/logger';
 import { ErrorMapper } from '../../../utils/mapper/errorMapper';
 import { Course } from '../../course/entity/course.entity';
 import { Input } from '../../interfaces';
 import { CourseInvitation } from '../entity/course-invitation.entity';
+import { CourseInvitationRepository } from '../repository/course-invitation.repository';
 import { CourseInvitationServiceInterface } from './interface';
 
 interface CourseInvitationWhereArgs extends FindArgs<CourseInvitation> {}
@@ -22,9 +26,11 @@ export class CourseInvitationService
 {
   constructor(
     @Inject()
-    private readonly courseInvitationRepository: Repository<CourseInvitation>,
+    private readonly courseInvitationRepository: CourseInvitationRepository,
     @Inject()
-    private readonly courseRepository: Repository<Course>,
+    private readonly courseRepository: CourseRepository,
+    @Inject()
+    private readonly courseInvitationJobService: CourseInvitationJobService<CourseInvitation>,
     @Inject()
     private readonly errorResponseMapper: ErrorMapper
   ) {
@@ -33,7 +39,7 @@ export class CourseInvitationService
 
   protected addAuthorizedUserCondition(
     queryBuilder: SelectQueryBuilder<CourseInvitation>,
-    authUser: Student
+    authUser: AuthUser
   ): void {
     if (!authUser) {
       this.errorResponseMapper.throw(
@@ -93,44 +99,55 @@ export class CourseInvitationService
 
   public async create(
     input: Input<CourseInvitation>,
-    authUser?: Student
+    authUser?: AuthUser
   ): Promise<DataResponse<CourseInvitation>> {
-    if (!authUser) {
-      return this.errorResponseMapper.throw(
-        'Unauthorized access to create course invitation',
-        401
-      );
+    try {
+      if (!authUser) {
+        return this.errorResponseMapper.throw(
+          'Unauthorized access to create course invitation',
+          401
+        );
+      }
+
+      const course = await this.courseRepository.findOne({
+        where: { id: input.course.id },
+      });
+
+      const existingInvitation = await this.courseInvitationRepository.findOne({
+        where: { email: input.email, id: input.course.id },
+      });
+
+      if (!course) {
+        throw new NotFoundError('Course not found');
+      }
+
+      if (existingInvitation) {
+        return this.errorResponseMapper.throw('Invitation already exists', 409);
+      }
+
+      const invitation = this.courseInvitationRepository.create({
+        email: input.email,
+        course,
+      });
+
+      invitation.isSent = true;
+      await this.courseInvitationRepository.save(invitation);
+      await this.courseInvitationJobService.addJob({
+        entity: invitation,
+        delay: this.calculateDelayFromExpiresAt(invitation.expiresAt),
+      });
+
+      return { status: 201, data: { invitation } };
+    } catch ({ message }) {
+      Logger.error(message);
+      throw this.errorResponseMapper.throw(message);
     }
-
-    const course = await this.courseRepository.findOne({
-      where: { id: input.course.id },
-    });
-
-    const existingInvitation = await this.courseInvitationRepository.findOne({
-      where: { email: input.email, id: input.course.id },
-    });
-
-    if (!course) {
-      throw new NotFoundError('Course not found');
-    }
-
-    if (existingInvitation) {
-      return this.errorResponseMapper.throw('Invitation already exists', 409);
-    }
-
-    const invitation = this.courseInvitationRepository.create({
-      email: input.email,
-      course,
-    });
-
-    await this.courseInvitationRepository.save(invitation);
-    return { status: 201, data: { invitation } };
   }
 
   public async acceptInvitation(
     invitationId: string,
     input: Input<CourseInvitation>,
-    authUser?: Student
+    authUser?: AuthUser
   ) {
     if (!authUser) {
       return this.errorResponseMapper.throw(
@@ -140,7 +157,7 @@ export class CourseInvitationService
     }
 
     const invitation = await this.courseInvitationRepository.findOne({
-      where: { id: invitationId },
+      where: { id: invitationId, email: input.email },
       relations: ['course'],
     });
 
@@ -149,17 +166,18 @@ export class CourseInvitationService
     }
 
     invitation.isAccepted = true;
+    invitation.isValid = false;
     await this.courseInvitationRepository.save(invitation);
     return {
-      message: 'Invitation accepted successfully',
-      course: invitation.course,
+      message: 'Invitation accepted',
+      status: true,
     };
   }
 
   public async update(
     id: string,
     input: Input<CourseInvitation>,
-    authUser?: Student
+    authUser?: AuthUser
   ): Promise<DataResponse<CourseInvitation>> {
     if (!authUser) {
       return this.errorResponseMapper.throw(
@@ -177,7 +195,47 @@ export class CourseInvitationService
     }
 
     invitation.isValid = input.isValid;
+    invitation.expiresAt = input.expiresAt;
     await this.courseInvitationRepository.save(invitation);
     return { status: 200, data: { invitation } };
+  }
+
+  public async revokeInvitation(invitationId: string, authUser?: AuthUser) {
+    if (!authUser) {
+      return this.errorResponseMapper.throw(
+        'Unauthorized access to revoke invitation',
+        401
+      );
+    }
+
+    const invitation = await this.courseInvitationRepository.findOne({
+      where: { id: invitationId },
+    });
+
+    if (!invitation) {
+      return this.errorResponseMapper.throw('Invitation not found', 404);
+    }
+
+    if (invitation.isSent && !invitation.isAccepted) {
+      invitation.isValid = false;
+    }
+
+    await this.courseInvitationRepository.save(invitation);
+    return {
+      message: 'Invitation revoked',
+      status: true,
+    };
+  }
+
+  private calculateDelayFromExpiresAt(expiresAt: Date | null): number {
+    if (expiresAt) {
+      const currentTime = new Date().getTime();
+      const expiresAtTime = new Date(expiresAt).getTime();
+      const delay = expiresAtTime - currentTime;
+
+      return delay > 0 ? delay : 0;
+    }
+
+    return 0;
   }
 }

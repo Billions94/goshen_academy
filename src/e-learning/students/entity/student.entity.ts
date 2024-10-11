@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { BaseTimeEntry } from '../../../core/base/base-time-entry';
 import { Course } from '../../course/entity/course.entity';
-import { Auth } from '../interface';
+import { Auth, Gender } from '../interface';
 
 @Index('IDX_Student_tb', ['id'], { unique: true })
 @Entity({ name: 'student' })
@@ -71,6 +71,13 @@ export class Student extends BaseTimeEntry implements Auth {
 
   @Column('varchar', { length: 300, nullable: true })
   image: string | null;
+
+  @Column({
+    type: 'enum',
+    enum: Gender,
+    default: Gender.OTHER,
+  })
+  gender: Gender;
 
   @Column('varchar', { length: 250, nullable: true })
   private password: string;

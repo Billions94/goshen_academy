@@ -9,7 +9,6 @@ export const studentResponseMapper = (student: Student): Partial<Student> => ({
   dateOfBirth: student.dateOfBirth,
   nationality: student.nationality,
   courses: student.courses,
-  //lessons: student.lessons,
   address: student.address,
   email: student.email,
   phone: student.phone,
