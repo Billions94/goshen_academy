@@ -2,6 +2,14 @@ import dotenv from 'dotenv';
 import path from 'path';
 import * as process from 'process';
 import { DataSourceOptions } from 'typeorm';
+import { CourseInvitation } from './e-learning/course-invitation/entity/course-invitation.entity';
+import { Course } from './e-learning/course/entity/course.entity';
+import { Lesson } from './e-learning/lessons/lesson/entity/lesson.entity';
+import { LessonCategory } from './e-learning/lessons/lessonCategory/entity/lesson-category.entity';
+import { LessonVideo } from './e-learning/lessons/lessonVideo/entity/lesson-video.entity';
+import { Quiz } from './e-learning/quiz/entity/quiz.entity';
+import { Result } from './e-learning/result/entity/result.entity';
+import { Student } from './e-learning/students/entity/student.entity';
 dotenv.config();
 
 const isCompiled = path.extname(__filename).includes('js');
@@ -20,18 +28,14 @@ const ORMConfig = {
   synchronize: process.env.NODE_ENV !== 'test',
   cache: true,
   entities: [
-    `src/e-learning/students/entity/**/*.${isCompiled ? 'js' : 'ts'}`,
-    `src/e-learning/course/entity/**/*.${isCompiled ? 'js' : 'ts'}`,
-    `src/e-learning/course-invitation/entity/**/*.${isCompiled ? 'js' : 'ts'}`,
-    `src/e-learning/lessons/lesson/entity/**/*.${isCompiled ? 'js' : 'ts'}`,
-    `src/e-learning/lessons/lessonCategory/entity/**/*.${
-      isCompiled ? 'js' : 'ts'
-    }`,
-    `src/e-learning/lessons/lessonVideo/entity/**/*.${
-      isCompiled ? 'js' : 'ts'
-    }`,
-    `src/e-learning/quiz/entity/**/*.${isCompiled ? 'js' : 'ts'}`,
-    `src/e-learning/result/entity/**/*.${isCompiled ? 'js' : 'ts'}`,
+    Student,
+    Course,
+    CourseInvitation,
+    Lesson,
+    LessonCategory,
+    LessonVideo,
+    Quiz,
+    Result,
   ],
   migrations: [`src/migration/**/*.${isCompiled ? 'js' : 'ts'}`],
   cli: {
