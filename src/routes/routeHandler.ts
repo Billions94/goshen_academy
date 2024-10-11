@@ -9,6 +9,7 @@ import { LessonVideoController } from '../e-learning/lessons/lessonVideo/control
 import { QuizController } from '../e-learning/quiz/controller/quiz.controller';
 import { ResultController } from '../e-learning/result/controller/result.controller';
 import { StudentController } from '../e-learning/students/controller/student.controller';
+import { HealthController } from '../health/health.controller';
 import { AuthGuard } from '../middlewares/authGuard';
 import { PinoLoggerMiddleware } from '../middlewares/requestLogger';
 import { RequireUser } from '../middlewares/requireUser';
@@ -42,6 +43,7 @@ export class RouteHandler {
         ResultController,
         StudentController,
         JobController,
+        HealthController,
       ],
       middlewares: [
         AuthGuard,
