@@ -12,9 +12,8 @@ import { ResultController } from '../e-learning/result/controller/result.control
 import { StudentController } from '../e-learning/students/controller/student.controller';
 import { HealthController } from '../health/health.controller';
 import { AuthGuard } from '../middlewares/authGuard';
-import { PinoLoggerMiddleware } from '../middlewares/requestLogger';
+import { RequestLogger } from '../middlewares/requestLogger';
 import { RequireUser } from '../middlewares/requireUser';
-import RequestLogger from '../utils/logger/requestLogger';
 
 /**
  * Class for handling routers and controllers
@@ -47,12 +46,7 @@ export class RouteHandler {
         JobController,
         HealthController,
       ],
-      middlewares: [
-        AuthGuard,
-        RequireUser,
-        RequestLogger,
-        PinoLoggerMiddleware,
-      ],
+      middlewares: [AuthGuard, RequireUser, RequestLogger],
     });
   }
 }

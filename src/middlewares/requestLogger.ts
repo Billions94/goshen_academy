@@ -14,7 +14,7 @@ const logger = pino({
 
 @Service()
 @Middleware({ type: 'before' }) // Executes before controller actions
-export class PinoLoggerMiddleware implements ExpressMiddlewareInterface {
+export class RequestLogger implements ExpressMiddlewareInterface {
   use(req: Request, res: Response, next: NextFunction): void {
     const { page, limit, key, value } = req.query;
 
