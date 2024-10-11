@@ -11,7 +11,6 @@ export class DataBase {
     try {
       if (!DataBase.dataSource.isInitialized) {
         await DataBase.dataSource.initialize();
-        await DataBase.dataSource.synchronize();
         Logger.info('Connected to database ✅');
         // await insertStudents(100); //Insert mocked students
       }

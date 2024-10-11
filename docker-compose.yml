@@ -19,10 +19,19 @@ services:
       db:
         condition: service_healthy
 
-  db:
-    container_name: pg_container
+  test-db:
     image: postgres:14
-    restart: always
+    container_name: test_postgres_db
+    environment:
+      POSTGRES_DB: test_db
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
+    ports:
+      - '5433:5432' # Remap the port for the test database to avoid conflicts
+
+  db:
+    image: postgres:14
+    container_name: pg_container
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
