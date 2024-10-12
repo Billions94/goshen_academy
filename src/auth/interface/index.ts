@@ -1,4 +1,4 @@
-import { Student } from '../../e-learning/students/entity/student';
+import { Student } from '../../e-learning/students/entity/student.entity';
 
 export interface JwtPayload {
   id: string;
@@ -25,3 +25,5 @@ export interface RefreshTokenResponse {
   refreshToken: string;
   user: Student;
 }
+
+export interface AuthUser extends Pick<Student, 'id' | 'isAdmin' | 'courses'> {}

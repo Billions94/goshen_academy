@@ -1,21 +1,55 @@
-version: '3.8'
 services:
-  db:
-    container_name: pg_container
-    image: postgres
-    restart: always
+  # Backend Api service
+  api:
+    build: .
+    ports:
+      - '3001:3001'
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    command: npm run start
     environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      DB_DATABASE: postgres
+    networks:
+      - dbnetwork
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+
+  test-db:
+    image: postgres:14
+    container_name: test_postgres_db
+    environment:
+      POSTGRES_DB: test_db
       POSTGRES_USER: root
-      POSTGRES_PASSWORD: root
-      POSTGRES_DB: goshen_db
+      POSTGRES_PASSWORD: password
     ports:
-      - "5432:5432"
-  pgadmin:
-    container_name: pgadmin4_container_
-    image: dpage/pgadmin4:6
-    restart: always
+      - '5433:5432' # Remap the port for the test database to avoid conflicts
+    networks:
+      - dbnetwork
+
+  db:
+    image: postgres:14
+    container_name: pg_container
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: root
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: postgres
     ports:
-      - "5050:80"
+      - '5432:5432'
+    networks:
+      - dbnetwork
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  dbnetwork:
+    driver: bridge

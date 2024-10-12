@@ -1,6 +1,8 @@
+import dotenv from 'dotenv';
 import { DataSource } from 'typeorm';
-import Logger from '../utils/logger/logger';
 import ORMConfig from '../ormConfig';
+import Logger from '../utils/logger/logger';
+dotenv.config();
 
 export class DataBase {
   public static readonly dataSource = new DataSource(ORMConfig);
@@ -9,11 +11,12 @@ export class DataBase {
     try {
       if (!DataBase.dataSource.isInitialized) {
         await DataBase.dataSource.initialize();
-        await DataBase.dataSource.synchronize();
         Logger.info('Connected to database ✅');
+        // await insertStudents(100); //Insert mocked students
       }
-    } catch ({ message }) {
-      Logger.error(message);
+    } catch (e) {
+      Logger.error(e);
+      process.exit(1);
     }
   }
 }
