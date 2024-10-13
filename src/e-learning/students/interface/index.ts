@@ -1,9 +1,12 @@
 import { Lesson } from '../../../e-learning/lessons/lesson/entity/lesson.entity';
 import { Student } from '../entity/student.entity';
 
-export interface StudentInput extends Omit<Student, 'password'> {
+export interface StudentInput
+  extends Omit<Student, 'password' | 'secondaryPassword'> {
   password: string;
   readonly confirmPassword: string;
+  secondaryPassword: string;
+  readonly confirmSecondaryPassword: string;
 }
 
 export interface SqlRawQueryMapperStudent {

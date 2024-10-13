@@ -37,6 +37,12 @@ export class Validator {
 
     if (input.confirmPassword !== input.password)
       throw new Error('Passwords do not match');
+
+    if (this.isEmpty(input.secondaryPassword))
+      throw new Error('Secondary Password field cannot be empty');
+
+    if (this.isEmpty(input.confirmSecondaryPassword))
+      throw new Error('Confirm Secondary Password field cannot be empty');
   }
 
   public static validateCourseInput(input: Input<CreateCourseInput>) {
