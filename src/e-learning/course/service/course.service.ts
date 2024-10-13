@@ -86,6 +86,7 @@ export class CourseService
       );
     }
     Validator.validateCourseInput(input);
+    console.log('input', { input });
 
     const existingCourse = await this.courseRepository.findOne({
       where: { title: input.title },
@@ -108,6 +109,7 @@ export class CourseService
     let course: Course;
 
     course = this.courseRepository.create({
+      ...input,
       students: [authUser],
       lessons: [lesson],
       isLatest: true,
@@ -120,6 +122,7 @@ export class CourseService
 
       for (const lesson of lessons) {
         course = this.courseRepository.create({
+          ...input,
           students: [authUser],
           lessons: [lesson],
           isLatest: true,

@@ -24,7 +24,7 @@ export class Lesson extends BaseTimeEntry implements ParticipationProperty {
 
   @ManyToOne(() => LessonCategory, (category) => category.lessons, {
     eager: true,
-    cascade: true,
+    onDelete: 'CASCADE',
   })
   @Index('IDX_Lesson_category')
   @JoinColumn({ name: 'lessonCategoryId' })
@@ -32,7 +32,7 @@ export class Lesson extends BaseTimeEntry implements ParticipationProperty {
 
   @ManyToOne(() => Course, (course) => course.lessons, {
     eager: true,
-    cascade: true,
+    onDelete: 'CASCADE',
   })
   @Index('IDX_Lesson_course')
   @JoinColumn({ name: 'courseId' })

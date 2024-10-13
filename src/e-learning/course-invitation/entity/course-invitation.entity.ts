@@ -26,7 +26,7 @@ export class CourseInvitation extends BaseTimeEntry {
 
   @ManyToOne(() => Course, (course) => course.invitations, {
     eager: true,
-    cascade: true,
+    onDelete: 'CASCADE',
   })
   @Index('IDX_Quiz_course')
   @JoinColumn({ name: 'courseId' })

@@ -10,7 +10,7 @@ import { Student } from '../../students/entity/student.entity';
 @Entity('course')
 export class Course extends BaseTimeEntry implements ParticipationProperty {
   @Index('IDX_Course_title', { unique: true })
-  @Column({ nullable: true, length: 50 })
+  @Column({ nullable: false, length: 50 })
   title: string;
 
   @Column('text', { nullable: false })

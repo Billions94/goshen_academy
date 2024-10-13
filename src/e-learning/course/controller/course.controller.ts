@@ -69,7 +69,10 @@ export class CourseController {
 
   @Authorized()
   @Delete('/:id')
-  async deleteCourse(@Param('id') id: string): Promise<MessageStatus> {
-    return this.courseService.deleteById(id);
+  async deleteCourse(
+    @CurrentUser() authUser: AuthUser,
+    @Param('id') id: string
+  ): Promise<MessageStatus> {
+    return this.courseService.deleteById(id, authUser);
   }
 }

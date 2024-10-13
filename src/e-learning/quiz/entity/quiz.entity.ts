@@ -26,7 +26,7 @@ export class Quiz extends BaseTimeEntry {
 
   @ManyToOne(() => Lesson, (lesson) => lesson.id, {
     eager: true,
-    cascade: true,
+    onDelete: 'CASCADE',
   })
   @Index('IDX_Quiz_lesson')
   @JoinColumn({ name: 'lessonId' })
@@ -34,7 +34,8 @@ export class Quiz extends BaseTimeEntry {
 
   @ManyToOne(() => Course, (course) => course.quizzes, {
     eager: true,
-    cascade: true,
+
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'courseId' })
   course: Course;

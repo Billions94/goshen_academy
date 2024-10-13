@@ -13,8 +13,8 @@ export class LessonVideo extends BaseTimeEntry {
   duration: number;
 
   @ManyToOne(() => Lesson, (lesson) => lesson.videos, {
-    cascade: true,
     eager: true,
+    onDelete: 'CASCADE',
   })
   @Index('IDX_LessonVideo_lesson')
   @JoinColumn({ name: 'lessonId' })
