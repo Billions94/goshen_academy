@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from 'express';
-import { get } from 'lodash';
 import { ExpressMiddlewareInterface, Middleware } from 'routing-controllers';
 import { Inject, Service } from 'typedi';
 import { JwtAuthService } from '../auth/jwt-auth.service';
@@ -15,7 +14,6 @@ declare global {
     }
   }
 }
-
 @Service()
 @Middleware({ type: 'before' })
 export class AuthGuard implements ExpressMiddlewareInterface {
@@ -33,17 +31,14 @@ export class AuthGuard implements ExpressMiddlewareInterface {
       ) {
         return next();
       } else {
-        res.send({
+        return res.status(401).send({
           status: 401,
-          error: {
-            message: 'Please provide token in Authorization header!',
-          },
+          error: { message: 'Please provide token in Authorization header!' },
         });
       }
     } else {
       const accessToken = req?.headers?.authorization?.replace('Bearer ', '');
-      const refreshToken = String(get(req, 'headers.x-refresh'));
-
+      const refreshToken = String(req.headers['x-refresh']);
       const { decodedToken, expired } =
         await this.jwtAuthService.verifyJwtAccessToken(accessToken);
 
@@ -58,13 +53,26 @@ export class AuthGuard implements ExpressMiddlewareInterface {
         const { accessToken, user, errorMessage } =
           await this.jwtAuthService.refreshTokens(refreshToken);
 
-        if (errorMessage) Logger.warn('Jwt token expired');
+        if (errorMessage) {
+          Logger.warn('JWT token expired and refresh token failed');
+
+          return res.status(401).send({
+            status: 401,
+            error: { message: 'Session expired. Please log in again.' },
+          });
+        }
 
         req.headers['authorization'] = `Bearer ${accessToken}`;
         req.headers['x-refresh'] = refreshToken;
         req.user = user;
+
         return next();
       }
     }
+
+    return res.status(401).send({
+      status: 401,
+      error: { message: 'Invalid or expired token. Please log in again.' },
+    });
   }
 }

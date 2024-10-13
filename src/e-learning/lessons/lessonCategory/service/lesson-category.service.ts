@@ -27,6 +27,7 @@ export class LessonCategoryService
     private readonly errorMapper: ErrorMapper
   ) {
     super(lessonCategoryRepository, 'lesson_category', errorMapper);
+    Logger.info('LessonCategoryService initialized');
   }
 
   protected addAuthorizedUserCondition(

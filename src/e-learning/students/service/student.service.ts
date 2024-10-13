@@ -2,6 +2,7 @@ import * as bcryptService from 'bcrypt';
 import { Inject, Service } from 'typedi';
 import { SelectQueryBuilder } from 'typeorm';
 import { AuthService } from '../../../auth/auth.service';
+import { AuthUser } from '../../../auth/interface';
 import {
   AbstractEntityCrudService,
   FindArgs,
@@ -33,51 +34,50 @@ export class StudentService
     private readonly errorResponseMapper: ErrorMapper
   ) {
     super(studentRepository, 'student', errorResponseMapper);
+    Logger.info('StudentService initialized');
   }
 
   protected addAuthorizedUserCondition(
     queryBuilder: SelectQueryBuilder<Student>,
-    authUser: Student
+    authUser: AuthUser
   ): void {
-    if (authUser) {
-      queryBuilder
-        .andWhere('student.id = :id', { id: authUser.id })
-        .andWhere('student.isAdmin = :isAdmin', { isAdmin: authUser.isAdmin });
-    }
+    queryBuilder
+      .andWhere('student.id = :id', { id: authUser.id })
+      .andWhere('student.isAdmin = :isAdmin', { isAdmin: authUser.isAdmin });
   }
   protected addWhereCondition(
     queryBuilder: SelectQueryBuilder<Student>,
     args: StudentServiceWhereArgs
   ): void {
-    if (args?.where?.id) {
+    if (args.where?.id) {
       queryBuilder.where('student.id = :id', { id: args.where.id });
     }
 
-    if (args?.where?.firstName) {
+    if (args.where?.firstName) {
       queryBuilder.andWhere('student.firstName = :firstName', {
         firstName: args.where.firstName,
       });
     }
 
-    if (args?.where?.lastName) {
+    if (args.where?.lastName) {
       queryBuilder.andWhere('student.lastName = :lastName', {
         lastName: args.where.lastName,
       });
     }
 
-    if (args?.where?.email) {
+    if (args.where?.email) {
       queryBuilder.andWhere('student.email = :email', {
         email: args.where.email,
       });
     }
 
-    if (args?.where?.nationality) {
+    if (args.where?.nationality) {
       queryBuilder.andWhere('student.nationality = :nationality', {
         nationality: args.where.nationality,
       });
     }
 
-    if (args?.where?.address) {
+    if (args.where?.address) {
       queryBuilder.andWhere('student.address = :address', {
         address: args.where.address,
       });
@@ -87,14 +87,14 @@ export class StudentService
     queryBuilder: SelectQueryBuilder<Student>,
     args?: StudentServiceWhereArgs | undefined
   ): void {
-    if (args && args.order) {
+    if (args?.order) {
       const { key, value } = args.order;
       queryBuilder.orderBy(`student."${key}"`, value);
     }
   }
   public async create(
     input: Input<StudentInput>,
-    _authUser?: Student
+    _authUser?: AuthUser
   ): Promise<DataResponse<Student>> {
     try {
       Validator.validateRegisterInput(input);
@@ -157,14 +157,8 @@ export class StudentService
     }
   }
 
-  async getEnrolledStudents(
-    authUser?: Student
-  ): Promise<DataResponse<Student[]>> {
+  async getEnrolledStudents(): Promise<DataResponse<Student[]>> {
     try {
-      if (!authUser?.isAdmin) {
-        throw new Error('Unauthorized access');
-      }
-
       const enrollendStudents = await this.studentRepository
         .createQueryBuilder('student')
         .where('student."enrollmentDate" IS NOT NULL')
@@ -200,16 +194,9 @@ export class StudentService
   public async update(
     id: string,
     input: Input<Student>,
-    authUser?: Student
+    authUser?: AuthUser
   ): Promise<DataResponse<Student>> {
     try {
-      if (!authUser || !authUser.isAdmin) {
-        return this.errorResponseMapper.throw(
-          'Unauthorized access to update student',
-          401
-        );
-      }
-
       const existingStudent = await this.studentRepository.findOne({
         where: { id },
       });

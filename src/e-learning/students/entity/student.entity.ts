@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { BaseTimeEntry } from '../../../core/base/base-time-entry';
 import { Course } from '../../course/entity/course.entity';
-import { Auth, Gender } from '../interface';
+import { Auth, Gender, Privilege } from '../interface';
 
 @Index('IDX_Student_tb', ['id'], { unique: true })
 @Entity({ name: 'student' })
@@ -79,8 +79,14 @@ export class Student extends BaseTimeEntry implements Auth {
   })
   gender: Gender;
 
+  @Column('simple-array', { nullable: false, default: [Privilege.READ] })
+  privileges: Privilege[];
+
   @Column('varchar', { length: 250, nullable: true })
   private password: string;
+
+  @Column('varchar', { length: 250, nullable: true })
+  private secondaryPassword: string;
 
   @Column('varchar', { length: 250, nullable: true })
   refreshToken: string | null;
@@ -102,6 +108,14 @@ export class Student extends BaseTimeEntry implements Auth {
 
   getPassword() {
     return this.password;
+  }
+
+  setSecondaryPassword(secondaryPassword: string) {
+    this.secondaryPassword = secondaryPassword;
+  }
+
+  getSecondaryPassword() {
+    return this.secondaryPassword;
   }
 
   setRefreshToken(refreshToken: string | null) {

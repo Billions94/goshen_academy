@@ -35,6 +35,7 @@ export class CourseInvitationService
     private readonly errorResponseMapper: ErrorMapper
   ) {
     super(courseInvitationRepository, 'course_invitation', errorResponseMapper);
+    Logger.info('CourseInvitationService initialized');
   }
 
   protected addAuthorizedUserCondition(

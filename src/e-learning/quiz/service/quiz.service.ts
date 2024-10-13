@@ -29,6 +29,7 @@ export class QuizService
     private readonly errorResponseMapper: ErrorMapper
   ) {
     super(quizRepository, 'quiz', errorResponseMapper);
+    Logger.info('QuizService initialized');
   }
 
   protected addAuthorizedUserCondition(

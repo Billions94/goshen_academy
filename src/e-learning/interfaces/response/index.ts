@@ -16,4 +16,5 @@ export interface Data<Entity> {
 
 export interface DeleteResponse {
   status: 'success' | 'failed';
+  message?: string;
 }

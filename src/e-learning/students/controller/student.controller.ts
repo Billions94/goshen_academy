@@ -10,8 +10,8 @@ import {
   Post,
   QueryParams,
 } from 'routing-controllers';
+import { AuthUser } from 'src/auth/interface';
 import { Inject, Service } from 'typedi';
-import { AuthService } from '../../../auth/auth.service';
 import {
   Input,
   Order,
@@ -30,8 +30,6 @@ import { StudentService } from '../service/student.service';
 export class StudentController {
   @Inject()
   private readonly studentService: StudentService;
-  @Inject()
-  private readonly authService: AuthService;
 
   @Get()
   async getStudents(
@@ -54,10 +52,8 @@ export class StudentController {
 
   @Authorized()
   @Get('/enrolled-students')
-  async getEnrolledStudents(
-    @CurrentUser() authUser: Student
-  ): Promise<DataResponse<Student[]>> {
-    return this.studentService.getEnrolledStudents(authUser);
+  async getEnrolledStudents(): Promise<DataResponse<Student[]>> {
+    return this.studentService.getEnrolledStudents();
   }
 
   @Get('/:id')
@@ -88,6 +84,7 @@ export class StudentController {
     return this.studentService.update(authUser.id, input, authUser);
   }
 
+  @Authorized()
   @Patch('/reset-password')
   async resetPassword(
     @CurrentUser() student: Student,
@@ -96,17 +93,22 @@ export class StudentController {
     return this.studentService.resetPassword(student, oldPassword, newPassword);
   }
 
+  @Authorized()
   @Patch('/:id')
   async updateStudent(
     @Param('id') id: string,
-    @CurrentUser() student: Student,
+    @CurrentUser() student: AuthUser,
     @Body() input: Input<StudentInput>
   ): Promise<Partial<DataResponse<Student>>> {
     return this.studentService.update(id, input, student);
   }
 
+  @Authorized()
   @Delete('/:id')
-  async deleteStudent(@Param('id') id: string): Promise<DeleteResponse> {
-    return this.studentService.deleteById(id);
+  async deleteStudent(
+    @CurrentUser() authUser: AuthUser,
+    @Param('id') id: string
+  ): Promise<DeleteResponse> {
+    return this.studentService.deleteById(id, authUser);
   }
 }

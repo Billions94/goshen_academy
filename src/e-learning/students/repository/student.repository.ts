@@ -1,5 +1,6 @@
 import { Service } from 'typedi';
 import { Repository } from 'typeorm';
+import { AuthUser } from '../../../auth/interface';
 import { DataBase } from '../../../db/init';
 import { addPagination } from '../../../utils/helper/add-pagination';
 import { Order } from '../../interfaces';
@@ -77,7 +78,7 @@ export class StudentRepository extends Repository<Student> {
   async updateStudent(
     id: string,
     updateInput: Partial<Student>,
-    student: Student
+    student: AuthUser
   ): Promise<Partial<Student>> {
     if (student.id !== id && student.isAdmin) {
       await this.createQueryBuilder()
