@@ -3,9 +3,9 @@ import pino from 'pino';
 import pinoHttp from 'pino-http';
 import { ExpressMiddlewareInterface, Middleware } from 'routing-controllers';
 import { Service } from 'typedi';
+import Logger from '../utils/logger/logger';
 
-// Create a Pino logger instance
-const logger = pino({
+export const logger = pino({
   level: 'info',
   transport: {
     target: 'pino-pretty',
@@ -18,7 +18,7 @@ export class RequestLogger implements ExpressMiddlewareInterface {
   use(req: Request, res: Response, next: NextFunction): void {
     const { page, limit, key, value } = req.query;
 
-    logger.info(
+    Logger.info(
       `${req.method} request to ${
         process.env.NODE_ENV === 'development'
           ? process.env.LOCAL_URL
@@ -43,7 +43,7 @@ export class RequestLogger implements ExpressMiddlewareInterface {
     );
 
     const pinoHttpMiddleware = pinoHttp({
-      logger,
+      logger: Logger,
       customLogLevel: (_req, res, err) => {
         if (res.statusCode >= 400 && res.statusCode < 500) {
           return 'warn';

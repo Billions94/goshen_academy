@@ -27,6 +27,7 @@ export class LessonVideoService
     private readonly errorResponseMapper: ErrorMapper
   ) {
     super(lessonVideoRepository, 'lesson_video', errorResponseMapper);
+    Logger.info('LessonVideoService initialized');
   }
 
   protected addAuthorizedUserCondition(

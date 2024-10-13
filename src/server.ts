@@ -2,7 +2,6 @@ import 'reflect-metadata';
 
 import { config } from 'dotenv';
 import { Express } from 'express';
-import listEndpoints from 'express-list-endpoints';
 import { useContainer } from 'routing-controllers';
 import Container from 'typedi';
 import { DataBase } from './db/init';
@@ -31,7 +30,16 @@ export class Server {
             : `${process.env.PROD_URL}`
         }`
       );
-      console.table(listEndpoints(this.server));
+
+      this.server._router.stack.forEach((middleware: any) => {
+        if (middleware.route) {
+          Logger.info(
+            `Initialized controller for route: ${Object.keys(
+              middleware.route.methods
+            )[0].toUpperCase()} -> ${middleware.route.path}`
+          );
+        }
+      });
     });
   }
 

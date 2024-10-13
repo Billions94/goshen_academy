@@ -22,9 +22,11 @@ export class JwtAuthService {
   public async tokenGenerator(student: Student): Promise<TokenResponse> {
     const accessToken = await this.generateAccessToken({
       id: String(student.id),
+      privileges: student.privileges,
     });
     const refreshToken = await this.generateRefreshToken({
       id: String(student.id),
+      privileges: student.privileges,
     });
 
     return { accessToken, refreshToken };

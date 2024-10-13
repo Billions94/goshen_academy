@@ -4,9 +4,7 @@ import pretty from 'pino-pretty';
 
 const Logger = logger(
   {
-    base: {
-      pid: false,
-    },
+    base: { pid: false },
     timestamp: () => `,"time":"${dayjs().format()}"`,
   },
   pretty()

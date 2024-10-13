@@ -27,10 +27,18 @@ export interface Auth {
   getRefreshToken(): string | null;
   setPassword(password: string): void;
   getPassword(): string;
+  setSecondaryPassword(password: string): void;
+  getSecondaryPassword(): string;
 }
 
 export enum Gender {
   MALE = 'Male',
   FEMALE = 'Female',
   OTHER = 'Other',
+}
+
+export enum Privilege {
+  READ = 'Read',
+  WRITE = 'Write',
+  DELETE = 'Delete',
 }

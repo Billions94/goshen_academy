@@ -1,7 +1,9 @@
 import { Student } from '../../e-learning/students/entity/student.entity';
+import { Privilege } from '../../e-learning/students/interface';
 
 export interface JwtPayload {
   id: string;
+  privileges: Privilege[];
   session?: string;
 }
 
@@ -26,4 +28,5 @@ export interface RefreshTokenResponse {
   user: Student;
 }
 
-export interface AuthUser extends Pick<Student, 'id' | 'isAdmin' | 'courses'> {}
+export interface AuthUser
+  extends Pick<Student, 'id' | 'isAdmin' | 'courses' | 'privileges'> {}

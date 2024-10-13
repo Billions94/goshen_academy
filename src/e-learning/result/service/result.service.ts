@@ -29,6 +29,7 @@ export class ResultService
     private readonly errorResponseMapper: ErrorMapper
   ) {
     super(resultRepository, 'result', errorResponseMapper);
+    Logger.info('ResultService initialized');
   }
 
   protected addAuthorizedUserCondition(

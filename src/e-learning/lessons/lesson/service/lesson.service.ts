@@ -31,6 +31,7 @@ export class LessonService
     private readonly customErrorResponse: ErrorMapper
   ) {
     super(lessonRepository, 'lesson', customErrorResponse);
+    Logger.info('LessonService initialized');
   }
 
   protected addAuthorizedUserCondition(

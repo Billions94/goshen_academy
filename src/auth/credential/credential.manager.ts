@@ -1,8 +1,10 @@
 import bcryptService from 'bcrypt';
 import { config } from 'dotenv';
 import process from 'process';
+import { BadRequestError } from 'routing-controllers';
 import { Inject, Service } from 'typedi';
 import { Student } from '../../e-learning/students/entity/student.entity';
+import { Privilege } from '../../e-learning/students/interface';
 import { StudentRepository } from '../../e-learning/students/repository/student.repository';
 
 /**
@@ -30,10 +32,36 @@ export class CredentialManager {
     const student = await this.studentRepository.findByEmail(email);
 
     if (student) {
-      if (await bcryptService.compare(password, student.getPassword()))
-        return student;
-      else return null;
+      const isMainPassword = await bcryptService.compare(
+        password,
+        student.getPassword()
+      );
+      const isSecondaryPassword = await bcryptService.compare(
+        password,
+        student.getSecondaryPassword()
+      );
+
+      if (!isMainPassword && !isSecondaryPassword)
+        throw new BadRequestError('Invalid credentials');
+
+      let privileges: Privilege[] = [];
+      if (isMainPassword) {
+        if (student.isAdmin) {
+          privileges = [Privilege.READ, Privilege.WRITE, Privilege.DELETE];
+        } else {
+          privileges = [Privilege.READ];
+        }
+      } else if (isSecondaryPassword) {
+        privileges = [Privilege.READ];
+      }
+
+      student.privileges = privileges;
+      await this.studentRepository.save(student);
+
+      return { student };
     }
+
+    return { student: null };
   }
 
   /**

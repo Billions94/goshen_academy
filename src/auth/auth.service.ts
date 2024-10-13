@@ -22,24 +22,29 @@ export class AuthService {
   ) {}
 
   public async register(student: Student) {
-    let existingUser: Student | null;
+    let existingStudent: Student | null;
 
     if (!student.email) {
-      existingUser = null;
+      existingStudent = null;
     } else {
-      existingUser = await this.studentRepository.findOne({
+      existingStudent = await this.studentRepository.findOne({
         where: { email: student.email! },
       });
     }
 
-    if (existingUser) {
+    if (existingStudent) {
       throw new Error('Student already registered');
     }
+
     const hashPassword = await this.credentialManager.hashPassword(
       student.getPassword()
     );
-    student.setPassword(hashPassword);
+    const hashSecondaryPassword = await this.credentialManager.hashPassword(
+      student.getSecondaryPassword()
+    );
 
+    student.setPassword(hashPassword);
+    student.setSecondaryPassword(hashSecondaryPassword);
     await this.studentRepository.save(student);
 
     const { accessToken, refreshToken } =
@@ -53,15 +58,15 @@ export class AuthService {
     password,
   }: LoginInput): Promise<Partial<TokenResponse>> {
     try {
-      const user = await this.credentialManager.verifyCredentials(
+      const { student } = await this.credentialManager.verifyCredentials(
         email,
         password
       );
 
-      if (user) {
+      if (student) {
         const { accessToken, refreshToken } =
-          await this.jwtAuthService.tokenGenerator(user);
-        await this.credentialManager.hashRefreshToken(refreshToken, user);
+          await this.jwtAuthService.tokenGenerator(student);
+        await this.credentialManager.hashRefreshToken(refreshToken, student);
 
         return { accessToken, refreshToken };
       } else {
