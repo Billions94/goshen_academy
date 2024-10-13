@@ -19,7 +19,9 @@ export class Course extends BaseTimeEntry implements ParticipationProperty {
   @OneToMany(() => CourseInvitation, (invitation) => invitation.course)
   invitations: CourseInvitation[];
 
-  @ManyToMany(() => Student, (student) => student.courses)
+  @ManyToMany(() => Student, (student) => student.courses, {
+    cascade: ['remove'],
+  })
   students: Partial<Student>[];
 
   @OneToMany(() => Lesson, (lesson) => lesson.course)

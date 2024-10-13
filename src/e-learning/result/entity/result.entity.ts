@@ -24,7 +24,10 @@ export class Result extends BaseTimeEntry {
   @JoinColumn({ name: 'studentId' })
   student: Student;
 
-  @ManyToOne(() => Quiz, (quiz) => quiz, { eager: true, onDelete: 'CASCADE' })
+  @ManyToOne(() => Quiz, (quiz) => quiz, {
+    eager: true,
+    onDelete: 'CASCADE',
+  })
   @Index('IDX_Result_quiz')
   @JoinColumn({ name: 'quizId' })
   quiz: Quiz;

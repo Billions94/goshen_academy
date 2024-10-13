@@ -34,7 +34,6 @@ export class Quiz extends BaseTimeEntry {
 
   @ManyToOne(() => Course, (course) => course.quizzes, {
     eager: true,
-
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'courseId' })

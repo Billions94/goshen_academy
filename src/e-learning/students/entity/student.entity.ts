@@ -52,7 +52,6 @@ export class Student extends BaseTimeEntry implements Auth {
   email: string | null;
 
   @ManyToMany(() => Course, (course) => course.students, {
-    onDelete: 'CASCADE',
     eager: true,
     nullable: true,
   })
