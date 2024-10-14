@@ -9,7 +9,10 @@ export class Cart extends BaseTimeEntry {
   @Column()
   productName: string;
 
-  @ManyToOne(() => Product, (product) => product.id, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Product, (product) => product.course, {
+    eager: true,
+    onDelete: 'CASCADE',
+  })
   @Index('IDX_Product')
   @JoinColumn({ name: 'productId' })
   product: Product;
@@ -23,4 +26,7 @@ export class Cart extends BaseTimeEntry {
 
   @Column('int', { default: 0 })
   quantity: number;
+
+  @Column('timestamptz', { nullable: true, default: null })
+  deletedAt: Date | null;
 }

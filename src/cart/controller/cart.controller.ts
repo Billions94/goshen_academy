@@ -21,14 +21,17 @@ export class CartController {
   @Inject()
   private readonly cartService: CartService;
 
-  @Get('/')
+  @Get('/items')
   async getCartItems(@CurrentUser() authUser: Student) {
     return this.cartService.getCartItems(authUser);
   }
 
   @Authorized()
   @Post('/add')
-  async addItem(@Body() input: Input<Cart>, @CurrentUser() authUser: Student) {
+  async addItem(
+    @Body() input: Input<Omit<Cart, 'productName'>>,
+    @CurrentUser() authUser: Student
+  ) {
     return this.cartService.create(input, authUser);
   }
 

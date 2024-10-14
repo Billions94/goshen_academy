@@ -1,5 +1,5 @@
 import { Inject, Service } from 'typedi';
-import { SelectQueryBuilder } from 'typeorm';
+import { IsNull, SelectQueryBuilder } from 'typeorm';
 import { AuthUser } from '../../auth/interface';
 import {
   AbstractEntityCrudService,
@@ -8,10 +8,8 @@ import {
 import { Input } from '../../e-learning/interfaces';
 import { DataResponse } from '../../e-learning/interfaces/response';
 import { Student } from '../../e-learning/students/entity/student.entity';
-import Logger from '../../utils/logger/logger';
 import { ErrorMapper } from '../../utils/mapper/errorMapper';
 import { Cart } from '../entity/cart.entity';
-import { Product } from '../product/entity/product.entity';
 import { ProductRepository } from '../product/repository/product.repository';
 import { CartRepository } from '../repository/cart.repository';
 import { CartPurchase, ProductType } from './interface';
@@ -74,17 +72,18 @@ export class CartService extends AbstractEntityCrudService<
     input: Input<Omit<Cart, 'productName'>>,
     authUser: Student
   ): Promise<DataResponse<Cart>> {
-    const product = await this.productRepository.findByProductType(
-      {
-        where: {
-          id: input.product.id,
-          relations: ['course', 'lesson'],
+    const isCourse = input.product.type === ProductType.COURSE;
+
+    const product = await this.productRepository.findOneOrFail({
+      where: {
+        [`${isCourse ? 'course' : 'lesson'}`]: {
+          id: isCourse
+            ? input?.product?.course?.id
+            : input?.product?.lesson?.id,
         },
       },
-      input.product.type === ProductType.COURSE
-        ? ProductType.COURSE
-        : ProductType.LESSON
-    );
+      relations: [isCourse ? 'course' : 'lesson'],
+    });
 
     if (!product) return this.errorMapper.throw('Product not found', 404);
     if (product.stock < input.quantity)
@@ -92,49 +91,39 @@ export class CartService extends AbstractEntityCrudService<
         `Not enough stock for product: ${product.type}`
       );
 
-    product.stock = input.product.stock;
     await this.productRepository.save(product);
 
-    let newProduct: Product | null;
     const cartItem = new Cart();
-
-    if (product.type === ProductType.COURSE && product.course) {
-      newProduct = await this.productRepository.save({
-        ...product,
-        course: { id: product.course.id },
-      });
-      cartItem.productName = product.course.title;
-
-      Logger.info(`Adding course to cart: ${product.course.title}`);
-    } else if (product.type === ProductType.LESSON && product.lesson) {
-      newProduct = await this.productRepository.save({
-        ...product,
-        lesson: { id: product.lesson.id },
-      });
-      cartItem.productName = product.lesson.name;
-
-      Logger.info(`Adding lesson to cart: ${product.lesson.name}`);
-    }
-
-    await this.productRepository.save(newProduct!);
+    cartItem.productName = isCourse
+      ? `${product?.course?.title}`
+      : `${product?.lesson?.name}`;
 
     cartItem.product = product;
-    cartItem.quantity = cartItem.quantity++;
     cartItem.student = authUser;
+    cartItem.quantity = input.quantity;
 
     await this.cartRepository.save(cartItem);
     return { status: 201, data: { cartItem } };
   }
 
   async getCartItems(student: Student): Promise<Cart[]> {
-    return this.cartRepository.find({ where: { student } });
+    return this.cartRepository.find({
+      where: {
+        student: { id: student.id },
+      },
+    });
   }
 
   async purchaseItems(
     student: Student,
     paymentMethod: string
   ): Promise<DataResponse<CartPurchase>> {
-    const cartItems = await this.cartRepository.find({ where: { student } });
+    const cartItems = await this.cartRepository.find({
+      where: {
+        student: { id: student.id },
+        deletedAt: IsNull(),
+      },
+    });
 
     if (cartItems.length === 0)
       return this.errorMapper.throw('No items in cart to purchase');
@@ -146,6 +135,12 @@ export class CartService extends AbstractEntityCrudService<
         return this.errorMapper.throw(
           `Not enough stock for product: ${item.productName}`
         );
+      }
+
+      if (typeof item.product.price === 'string') {
+        item.product.price = parseFloat(item.product.price);
+      } else {
+        item.product.price = item.product.price;
       }
 
       totalPrice += item.product.price * item.quantity;
@@ -163,7 +158,15 @@ export class CartService extends AbstractEntityCrudService<
       status: 'Success',
     };
 
-    await this.cartRepository.remove(cartItems);
+    for (const item of cartItems) {
+      item.product.stock -= item.quantity;
+      item.product.isPurchased = true;
+
+      await this.productRepository.save(item.product);
+      item.deletedAt = new Date();
+    }
+
+    await this.cartRepository.save(cartItems);
     return { status: 201, data: { purchaseDetails } };
   }
 

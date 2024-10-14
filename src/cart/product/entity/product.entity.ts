@@ -13,13 +13,18 @@ export class Product extends BaseEntity {
   })
   type: ProductType;
 
-  @ManyToOne(() => Course, { nullable: true })
-  @Index('IDX_Course')
+  @ManyToOne(() => Course, (course) => course.id, {
+    nullable: true,
+  })
+  @Index('IDX_CourseId')
   @JoinColumn({ name: 'courseId' })
   course: Course | null;
 
-  @ManyToOne(() => Lesson, { nullable: true })
-  @Index('IDX_Lesson')
+  @ManyToOne(() => Lesson, (lesson) => lesson.id, {
+    eager: true,
+    nullable: true,
+  })
+  @Index('IDX_LessonId')
   @JoinColumn({ name: 'lessonId' })
   lesson: Lesson | null;
 
@@ -28,4 +33,7 @@ export class Product extends BaseEntity {
 
   @Column('int')
   stock: number;
+
+  @Column('boolean', { default: false })
+  isPurchased: boolean;
 }

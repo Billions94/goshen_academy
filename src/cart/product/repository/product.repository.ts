@@ -23,14 +23,12 @@ export class ProductRepository extends Repository<Product> {
     const query = this.createQueryBuilder('product');
 
     if (productType === ProductType.COURSE) {
-      query.andWhere('product.type = :type', { type: ProductType.COURSE });
-      query.andWhere('product.course.id = :id', {
-        id: options?.where?.course?.id,
+      query.andWhere('product."courseId" = :courseId', {
+        courseId: options?.where?.course?.id,
       });
     } else if (productType === ProductType.LESSON) {
-      query.andWhere('product.type = :type', { type: ProductType.LESSON });
-      query.andWhere('product.lesson.id = :id', {
-        id: options?.where?.lesson?.id,
+      query.andWhere('product."lessonId" = :lessonId', {
+        lessonId: options?.where?.lesson?.id,
       });
     }
 
