@@ -7,9 +7,10 @@ import Logger from '../utils/logger/logger';
 import { ErrorMapper } from '../utils/mapper/errorMapper';
 
 export interface FindArgs<Entity> {
-  where?: Entity;
+  where?: Partial<Entity> & {
+    relations?: string[];
+  };
   authUser?: Student;
-  relations?: string[];
   pagination?: Omit<Pagination<Entity>, 'results' | 'pageCount'>;
   order?: Order;
 }
@@ -119,8 +120,8 @@ export abstract class AbstractEntityCrudService<
       this.addAuthorizedUserCondition(queryBuilder, args.authUser);
     }
 
-    if (args?.relations) {
-      [...new Set(args.relations)].forEach((relation) => {
+    if (args?.where?.relations) {
+      [...new Set(args.where.relations)].forEach((relation) => {
         let alias = relation;
         let table = relation;
         let baseTable = queryBuilder.alias;

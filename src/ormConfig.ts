@@ -2,6 +2,8 @@ import dotenv from 'dotenv';
 import path from 'path';
 import * as process from 'process';
 import { DataSourceOptions } from 'typeorm';
+import { Cart } from './cart/entity/cart.entity';
+import { Product } from './cart/product/entity/product.entity';
 import { CourseInvitation } from './e-learning/course-invitation/entity/course-invitation.entity';
 import { Course } from './e-learning/course/entity/course.entity';
 import { Lesson } from './e-learning/lessons/lesson/entity/lesson.entity';
@@ -29,6 +31,8 @@ const ORMConfig = {
   cache: true,
   entities: [
     Student,
+    Cart,
+    Product,
     Course,
     CourseInvitation,
     Lesson,

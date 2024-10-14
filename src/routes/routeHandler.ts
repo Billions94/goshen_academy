@@ -1,6 +1,7 @@
 import { Express } from 'express';
 import { Action, createExpressServer } from 'routing-controllers';
 import { AuthController } from '../auth/auth.controller';
+import { CartController } from '../cart/controller/cart.controller';
 import { JobController } from '../core/jobs/job.controller';
 import { CourseInvitationController } from '../e-learning/course-invitation/controller/course-invitation.controller';
 import { CourseController } from '../e-learning/course/controller/course.controller';
@@ -36,6 +37,7 @@ export class RouteHandler {
       controllers: [
         AuthController,
         CourseController,
+        CartController,
         CourseInvitationController,
         LessonController,
         LessonCategoryController,

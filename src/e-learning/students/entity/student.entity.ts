@@ -5,7 +5,9 @@ import {
   Index,
   JoinTable,
   ManyToMany,
+  OneToMany,
 } from 'typeorm';
+import { Cart } from '../../../cart/entity/cart.entity';
 import { BaseTimeEntry } from '../../../core/base/base-time-entry';
 import { Course } from '../../course/entity/course.entity';
 import { Auth, Gender, Privilege } from '../interface';
@@ -95,6 +97,9 @@ export class Student extends BaseTimeEntry implements Auth {
 
   @Column('date', { nullable: true, default: null })
   enrollmentDate: Date | null;
+
+  @OneToMany(() => Cart, (cart) => cart.student)
+  cart: Cart[];
 
   @BeforeInsert()
   setStudentId() {
