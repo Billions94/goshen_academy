@@ -23,33 +23,14 @@ export class ProductRepository extends Repository<Product> {
     const query = this.createQueryBuilder('product');
 
     if (productType === ProductType.COURSE) {
-      query.leftJoinAndSelect('product.course', 'course');
-    } else if (productType === ProductType.LESSON) {
-      query.leftJoinAndSelect('product.lesson', 'lesson');
-    }
-
-    if (options.where?.relations && options.where.relations.length > 0) {
-      options.where.relations.forEach((relation) => {
-        query.leftJoinAndSelect(`product.${relation}`, relation);
+      query.andWhere('product.type = :type', { type: ProductType.COURSE });
+      query.andWhere('product.course.id = :id', {
+        id: options?.where?.course?.id,
       });
-    }
-
-    if (options.order) {
-      Object.keys(options.order).forEach((key) => {
-        const orderDirection = options.order;
-
-        if (orderDirection) {
-          if (
-            orderDirection.value === 'ASC' ||
-            orderDirection.value === 'DESC'
-          ) {
-            query.addOrderBy(`product.${key}`, orderDirection.value);
-          } else {
-            console.warn(
-              `Invalid order direction: ${orderDirection} for field: ${key}`
-            );
-          }
-        }
+    } else if (productType === ProductType.LESSON) {
+      query.andWhere('product.type = :type', { type: ProductType.LESSON });
+      query.andWhere('product.lesson.id = :id', {
+        id: options?.where?.lesson?.id,
       });
     }
 

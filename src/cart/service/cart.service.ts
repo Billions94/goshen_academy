@@ -81,9 +81,9 @@ export class CartService extends AbstractEntityCrudService<
           relations: ['course', 'lesson'],
         },
       },
-      input.product.type === ProductType.LESSON
-        ? ProductType.LESSON
-        : ProductType.COURSE
+      input.product.type === ProductType.COURSE
+        ? ProductType.COURSE
+        : ProductType.LESSON
     );
 
     if (!product) return this.errorMapper.throw('Product not found', 404);
