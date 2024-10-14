@@ -71,7 +71,10 @@ export async function insertStudents(count = 50) {
       new Date(2000, 11, 31)
     );
     student.image = pictureRandomizer(count)[i];
-    student.setPassword(await bcryptService.hash('123456', 12));
+    student.setPassword(await bcryptService.hash('main-password', 12));
+    student.setSecondaryPassword(
+      await bcryptService.hash('secondary-password', 12)
+    );
     student.refreshToken = `refresh_token_${i + 1}`;
     student.isAdmin = false;
     student.phone = randomPhone();
