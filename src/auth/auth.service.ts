@@ -1,5 +1,5 @@
 import { Inject, Service } from 'typedi';
-import { LoginInput } from '../e-learning/interfaces';
+import { ErrorResponse, LoginInput } from '../e-learning/interfaces';
 import { Student } from '../e-learning/students/entity/student.entity';
 import { StudentRepository } from '../e-learning/students/repository/student.repository';
 import Logger from '../utils/logger/logger';
@@ -21,7 +21,10 @@ export class AuthService {
     private readonly errorMapper: ErrorMapper
   ) {}
 
-  public async register(student: Student) {
+  public async register(student: Student): Promise<{
+    accessToken: string;
+    refreshToken: string;
+  }> {
     let existingStudent: Student | null;
 
     if (!student.email) {
@@ -78,7 +81,7 @@ export class AuthService {
     }
   }
 
-  public async logout(authUser: AuthUser) {
+  public async logout(authUser: AuthUser): Promise<true | ErrorResponse> {
     try {
       const user = await this.studentRepository.findOneOrFail({
         where: { id: authUser.id },
