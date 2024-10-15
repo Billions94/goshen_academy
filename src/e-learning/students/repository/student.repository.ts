@@ -2,8 +2,7 @@ import { Service } from 'typedi';
 import { Repository } from 'typeorm';
 import { AuthUser } from '../../../auth/interface';
 import { DataBase } from '../../../db/init';
-import { addPagination } from '../../../utils/helper/add-pagination';
-import { Order } from '../../interfaces';
+
 import { Student } from '../entity/student.entity';
 import { SqlRawQueryMapperStudent } from '../interface';
 import { studentResponseMapper } from '../mapper/studentResponseMapper';
@@ -12,32 +11,6 @@ import { studentResponseMapper } from '../mapper/studentResponseMapper';
 export class StudentRepository extends Repository<Student> {
   constructor() {
     super(Student, DataBase.dataSource.createEntityManager());
-  }
-
-  /**
-   * Retrieves a paginated list of students, ordered by the provided criteria.
-   *
-   * @param order - The order criteria, containing the key and value to sort by.
-   * @param limit - The maximum number of students to return per page.
-   * @param skip - The number of students to skip for pagination.
-   *
-   * @returns A Promise that resolves to an array of Student objects.
-   *
-   * @remarks
-   * This function uses TypeORM's QueryBuilder to construct a query that retrieves students,
-   * applies pagination, sorting, and caching. It also eagerly loads the related lessons for each student.
-   */
-  async getStudentsAndPaginate(
-    order: Order,
-    limit: number,
-    skip: number
-  ): Promise<[Student[], number]> {
-    const queryBuilder = this.createQueryBuilder('student');
-    return await addPagination(queryBuilder, { limit, page: skip })
-      .leftJoinAndSelect('student.lessons', 'lessons')
-      .orderBy(`${order.key}`, `${order.value}`)
-      .cache(25000)
-      .getManyAndCount();
   }
 
   async findByEmail(email: string): Promise<Student | null> {
