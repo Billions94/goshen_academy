@@ -15,6 +15,7 @@ import { HealthController } from '../health/health.controller';
 import { AuthGuard } from '../middlewares/authGuard';
 import { RequestLogger } from '../middlewares/requestLogger';
 import { RequireUser } from '../middlewares/requireUser';
+import { ProductController } from '../product/controller/product.controller';
 
 /**
  * Class for handling routers and controllers
@@ -42,6 +43,7 @@ export class RouteHandler {
         LessonController,
         LessonCategoryController,
         LessonVideoController,
+        ProductController,
         QuizController,
         ResultController,
         StudentController,

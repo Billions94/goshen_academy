@@ -8,10 +8,10 @@ import {
 import { Input } from '../../e-learning/interfaces';
 import { DataResponse } from '../../e-learning/interfaces/response';
 import { Student } from '../../e-learning/students/entity/student.entity';
+import { ProductRepository } from '../../product/repository/product.repository';
+import { ProductService } from '../../product/service/product.service';
 import { ErrorMapper } from '../../utils/mapper/errorMapper';
 import { Cart } from '../entity/cart.entity';
-import { ProductRepository } from '../product/repository/product.repository';
-import { ProductService } from '../product/service/product.service';
 import { CartRepository } from '../repository/cart.repository';
 import { CartPurchase } from './interface';
 
@@ -51,13 +51,13 @@ export class CartService extends AbstractEntityCrudService<
     queryBuilder: SelectQueryBuilder<Cart>,
     args: CartServiceWhereArgs
   ): void {
-    if (args?.where?.id) {
+    if (args.where?.id) {
       queryBuilder.andWhere('cart."id" = :id', { id: args.where.id });
     }
 
-    if (args?.where?.productName) {
+    if (args.where?.product?.productName) {
       queryBuilder.andWhere('cart."productName" ILIKE :productName', {
-        productName: `%${args.where.productName}%`,
+        productName: `%${args.where.product.productName}%`,
       });
     }
   }
@@ -67,7 +67,7 @@ export class CartService extends AbstractEntityCrudService<
     args?: CartServiceWhereArgs | undefined
   ): void {
     if (args?.order) {
-      queryBuilder.orderBy(args?.order?.key || 'quiz.id', args?.order?.value);
+      queryBuilder.orderBy(args.order.key || 'quiz.id', args.order.value);
     }
   }
 
@@ -87,7 +87,7 @@ export class CartService extends AbstractEntityCrudService<
 
     if (product.stock < input.quantity)
       return this.errorMapper.throw(
-        `Not enough stock for product: ${product.type}`
+        `Not enough stock for product: ${product.type}s`
       );
 
     await this.productRepository.save(product);
@@ -108,8 +108,7 @@ export class CartService extends AbstractEntityCrudService<
       });
     } else {
       await this.cartRepository.update(cart.id, {
-        productName,
-        product: product,
+        product,
         student: authUser,
         quantity: input.quantity + cart.quantity,
         updatedAt: new Date(),
@@ -118,7 +117,6 @@ export class CartService extends AbstractEntityCrudService<
       cart = await this.cartRepository.findOneOrFail({
         where: {
           student: { id: authUser.id },
-          productName,
         },
       });
     }
@@ -155,7 +153,7 @@ export class CartService extends AbstractEntityCrudService<
       if (item.product) {
         if (item.product.stock < item.quantity) {
           return this.errorMapper.throw(
-            `Not enough stock for product: ${item.productName}`
+            `Not enough stock for product: ${item.product.productName}`
           );
         }
 
@@ -170,9 +168,9 @@ export class CartService extends AbstractEntityCrudService<
     }
 
     const purchaseDetails: CartPurchase = {
-      user: student.email,
+      email: student.email,
       items: cartItems.map((item) => ({
-        product: item.productName,
+        product: item.product!,
         quantity: item.quantity,
         price: item.product ? item.product.price : 0,
       })),
@@ -186,10 +184,8 @@ export class CartService extends AbstractEntityCrudService<
         item.product.stock -= item.quantity;
         item.product.isPurchased = true;
         item.product.updatedAt = new Date();
-
         await this.productRepository.save(item.product);
       }
-
       item.deletedAt = new Date();
     }
 

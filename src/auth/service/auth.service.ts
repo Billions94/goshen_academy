@@ -80,7 +80,6 @@ export class AuthService {
           entity: {
             student: { id: student.id } as Student,
             product: null,
-            productName: '',
             quantity: 0,
           },
         });

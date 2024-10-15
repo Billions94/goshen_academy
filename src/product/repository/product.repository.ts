@@ -1,8 +1,8 @@
 import { Service } from 'typedi';
 import { Repository } from 'typeorm';
-import { ProductType } from '../../../cart/service/interface';
-import { FindArgs } from '../../../core/abstract-entity-crud.service';
-import { DataBase } from '../../../db/init';
+import { ProductType } from '../../cart/service/interface';
+import { FindArgs } from '../../core/abstract-entity-crud.service';
+import { DataBase } from '../../db/init';
 import { Product } from '../entity/product.entity';
 
 @Service()

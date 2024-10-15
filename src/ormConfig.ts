@@ -3,7 +3,7 @@ import path from 'path';
 import * as process from 'process';
 import { DataSourceOptions } from 'typeorm';
 import { Cart } from './cart/entity/cart.entity';
-import { Product } from './cart/product/entity/product.entity';
+
 import { CourseInvitation } from './e-learning/course-invitation/entity/course-invitation.entity';
 import { Course } from './e-learning/course/entity/course.entity';
 import { Lesson } from './e-learning/lessons/lesson/entity/lesson.entity';
@@ -12,6 +12,7 @@ import { LessonVideo } from './e-learning/lessons/lessonVideo/entity/lesson-vide
 import { Quiz } from './e-learning/quiz/entity/quiz.entity';
 import { Result } from './e-learning/result/entity/result.entity';
 import { Student } from './e-learning/students/entity/student.entity';
+import { Product } from './product/entity/product.entity';
 dotenv.config();
 
 const isCompiled = path.extname(__filename).includes('js');

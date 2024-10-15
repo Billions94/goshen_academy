@@ -1,7 +1,8 @@
-import { FindArgs } from 'src/core/abstract-entity-crud.service';
+import { FindArgs } from '../../../core/abstract-entity-crud.service';
+import { Product } from '../../../product/entity/product.entity';
 
 export interface CartPurchase {
-  user: string | null;
+  email: string | null;
   items: CartItem[];
   totalCost: number;
   paymentMethod: string;
@@ -9,7 +10,7 @@ export interface CartPurchase {
 }
 
 interface CartItem {
-  product: string;
+  product: Product;
   quantity: number;
   price: number;
 }
