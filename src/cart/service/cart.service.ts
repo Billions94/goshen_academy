@@ -111,7 +111,7 @@ export class CartService extends AbstractEntityCrudService<
         productName,
         product: product,
         student: authUser,
-        quantity: input.quantity,
+        quantity: input.quantity + cart.quantity,
         updatedAt: new Date(),
       });
 
