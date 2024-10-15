@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f8fa;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        border: 1px solid #e6ecf0;
+        padding: 20px;
+      }
+      .header {
+        text-align: center;
+        padding: 20px 0;
+      }
+      .header img {
+        height: 50px;
+      }
+      .title {
+        font-size: 24px;
+        color: #333333;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .order-details,
+      .customer-details {
+        width: 100%;
+        margin-bottom: 20px;
+      }
+      .order-details th,
+      .order-details td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #e6ecf0;
+      }
+      .order-details th {
+        font-weight: normal;
+        color: #555555;
+      }
+      .order-total {
+        font-weight: bold;
+        text-align: right;
+      }
+      .total-amount {
+        font-size: 20px;
+        color: #333333;
+      }
+      .section-title {
+        font-size: 18px;
+        color: #333333;
+        margin-bottom: 10px;
+      }
+      .footer {
+        background-color: #2ab27b;
+        color: #ffffff;
+        padding: 20px;
+        text-align: center;
+      }
+      .footer p {
+        margin: 0;
+      }
+      .footer a {
+        color: #ffffff;
+        text-decoration: none;
+      }
+      .view-account {
+        background-color: #3498db;
+        color: #ffffff;
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+        display: inline-block;
+        margin: 20px 0;
+      }
+      .company-details {
+        text-align: center;
+        font-size: 12px;
+        color: #777777;
+        padding: 20px 0;
+      }
+      .social-links img {
+        width: 40px;
+        margin: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <table class="container">
+      <!-- Header Section -->
+      <tr>
+        <td>
+          <div class="header">
+            <img
+              src="https://res.cloudinary.com/the-tribe/image/upload/v1729033604/Goshen%20academy/goshen-academy.jpg"
+              alt="Company Logo"
+            />
+          </div>
+        </td>
+      </tr>
+
+      <!-- Title Section -->
+      <tr>
+        <td>
+          <div class="title">Thank You for Your Purchase, {{email}}!</div>
+        </td>
+      </tr>
+
+      <!-- Order Details -->
+      <tr>
+        <td>
+          <div class="section-title">Order Summary</div>
+          <table class="order-details" cellpadding="0" cellspacing="0">
+            {{items}}
+            <tr class="order-total">
+              <th>Total</th>
+              <td class="total-amount">{{totalCost}}</td>
+            </tr>
+            <tr>
+              <th>Payment Method</th>
+              <td>{{paymentMethod}}</td>
+            </tr>
+            <tr>
+              <th>Status</th>
+              <td>{{status}}</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+
+      <!-- Footer Section -->
+      <tr>
+        <td>
+          <div class="footer">
+            <p>Tell your friends</p>
+            <p>
+              Share your unique URL with friends and every time they sign up you
+              get $5 credit.
+            </p>
+            <a href="https://short.url/12345" class="view-account"
+              >View My Account</a
+            >
+
+            <div class="social-links">
+              <a href="https://www.linkedin.com/in/eagebedi/">
+                <img
+                  src="https://img.icons8.com/color/50/000000/linkedin.png"
+                  width="25px"
+                  alt="LinkedIn"
+                />
+              </a>
+              <a href="https://www.instagram.com/billions_e/">
+                <img
+                  src="https://img.icons8.com/color/50/000000/instagram-new--v1.png"
+                  width="25px"
+                  alt="Instagram"
+                />
+              </a>
+            </div>
+          </div>
+        </td>
+      </tr>
+
+      <!-- Company Details -->
+      <tr>
+        <td>
+          <div class="company-details">
+            {{current-date}} - © LexySpace | Developed by Ejiroghene.<br />
+            Don't like these emails? <a href="#">Unsubscribe</a><br />
+            Powered by Goshen Academy
+          </div>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

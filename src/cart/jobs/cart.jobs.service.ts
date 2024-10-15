@@ -15,7 +15,20 @@ export class CartJobService<Entity> {
     private readonly cartRepository: CartRepository
   ) {
     this.jobQueue = new Bull('jobQueue', redisConnectionOptions);
+    this.processJobs();
+  }
 
+  public async addJob(
+    jobData: JobDataOptions<Input<Omit<Entity, 'deletedAt'>>>
+  ) {
+    const job = await this.jobQueue.add(jobData.entity, {
+      delay: jobData.delay,
+    });
+
+    return job;
+  }
+
+  private processJobs() {
     this.jobQueue.process(async (job) => {
       Logger.info(`Processing cart job with data: ${JSON.stringify(job.data)}`);
 
@@ -35,15 +48,5 @@ export class CartJobService<Entity> {
         Logger.info(`Updated cart for user with ID: ${job.data.student.id}`);
       }
     });
-  }
-
-  public async addJob(
-    jobData: JobDataOptions<Input<Omit<Entity, 'deletedAt'>>>
-  ) {
-    const job = await this.jobQueue.add(jobData.entity, {
-      delay: jobData.delay,
-    });
-
-    return job;
   }
 }

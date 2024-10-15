@@ -8,8 +8,8 @@ import {
 import { Input } from '../../e-learning/interfaces';
 import { DataResponse } from '../../e-learning/interfaces/response';
 import { Student } from '../../e-learning/students/entity/student.entity';
+import { EmailJobService } from '../../email/jobs/email.job.service';
 import { ProductRepository } from '../../product/repository/product.repository';
-import { ProductService } from '../../product/service/product.service';
 import { ErrorMapper } from '../../utils/mapper/errorMapper';
 import { Cart } from '../entity/cart.entity';
 import { CartRepository } from '../repository/cart.repository';
@@ -28,7 +28,7 @@ export class CartService extends AbstractEntityCrudService<
     @Inject()
     private readonly productRepository: ProductRepository,
     @Inject()
-    private readonly productService: ProductService,
+    private readonly emailJobService: EmailJobService,
     @Inject()
     private readonly errorMapper: ErrorMapper
   ) {
@@ -55,9 +55,9 @@ export class CartService extends AbstractEntityCrudService<
       queryBuilder.andWhere('cart."id" = :id', { id: args.where.id });
     }
 
-    if (args.where?.product?.productName) {
+    if (args.where?.product?.name) {
       queryBuilder.andWhere('cart."productName" ILIKE :productName', {
-        productName: `%${args.where.product.productName}%`,
+        productName: `%${args.where.product.name}%`,
       });
     }
   }
@@ -72,14 +72,12 @@ export class CartService extends AbstractEntityCrudService<
   }
 
   public async create(
-    input: Input<Omit<Cart, 'productName'>>,
+    input: Omit<Cart, 'productName'>,
     authUser: Student
   ): Promise<DataResponse<Cart>> {
-    const isCourse = 'course' in input.product!;
-    const product = await this.productService.findOne(input.product, isCourse);
-    const productName = isCourse
-      ? `${product?.course?.title}`
-      : `${product?.lesson?.name}`;
+    const product = await this.productRepository.findOneByOrFail({
+      id: input.id,
+    });
 
     if (!product) {
       return this.errorMapper.throw('Product not found', 404);
@@ -101,7 +99,6 @@ export class CartService extends AbstractEntityCrudService<
 
     if (!cart) {
       cart = await this.cartRepository.save({
-        productName,
         product,
         student: authUser,
         quantity: input.quantity,
@@ -153,7 +150,7 @@ export class CartService extends AbstractEntityCrudService<
       if (item.product) {
         if (item.product.stock < item.quantity) {
           return this.errorMapper.throw(
-            `Not enough stock for product: ${item.product.productName}`
+            `Not enough stock for product: ${item.product.name}`
           );
         }
 
@@ -174,7 +171,7 @@ export class CartService extends AbstractEntityCrudService<
         quantity: item.quantity,
         price: item.product ? item.product.price : 0,
       })),
-      totalCost: totalPrice,
+      totalCost: parseFloat(totalPrice.toFixed(2)),
       paymentMethod,
       status: 'Success',
     };
@@ -190,6 +187,8 @@ export class CartService extends AbstractEntityCrudService<
     }
 
     await this.cartRepository.save(cartItems);
+    await this.emailJobService.addJob(purchaseDetails);
+
     return { status: 201, data: { purchaseDetails } };
   }
 

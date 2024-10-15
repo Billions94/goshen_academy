@@ -29,7 +29,7 @@ export class CartController {
   @Authorized()
   @Post('/add')
   async addItem(
-    @Body() input: Input<Omit<Cart, 'productName'>>,
+    @Body() input: Omit<Cart, 'productName'>,
     @CurrentUser() authUser: Student
   ) {
     return this.cartService.create(input, authUser);
@@ -38,7 +38,7 @@ export class CartController {
   @Authorized()
   @Post('/purchase')
   async purchaseItems(
-    @Body() paymentMethod: string,
+    @Body() { paymentMethod }: { paymentMethod: string },
     @CurrentUser() authUser: Student
   ) {
     return this.cartService.purchaseItems(authUser, paymentMethod);

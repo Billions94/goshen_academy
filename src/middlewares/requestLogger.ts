@@ -60,7 +60,7 @@ export class RequestLogger implements ExpressMiddlewareInterface {
             'cache-control': req.headers['cache-control'],
             'content-type': req.headers['content-type'],
           },
-          data: req.body,
+          body: req.body,
           params: req.params,
         }),
         res: ({ statusCode }: Response) => ({

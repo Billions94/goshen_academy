@@ -32,10 +32,7 @@ export class LessonVideoController {
     @Body() input: LessonVideoInput
   ): Promise<DataResponse<LessonVideo>> {
     return this.lessonVideoService.create(
-      {
-        ...input,
-        url: video.path,
-      },
+      { ...input, url: video.path },
       authUser
     );
   }

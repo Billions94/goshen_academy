@@ -9,9 +9,11 @@ import {
   Patch,
   Post,
   QueryParams,
+  UploadedFile,
 } from 'routing-controllers';
 import { AuthUser } from 'src/auth/interface';
 import { Inject, Service } from 'typedi';
+import { MulterFile, multerOptions } from '../../../utils/config/options';
 import {
   Input,
   Order,
@@ -78,10 +80,15 @@ export class StudentController {
   @Authorized()
   @Patch('/current-student')
   async updateCurrentStudent(
+    @UploadedFile('image', { options: multerOptions() }) image: MulterFile,
     @CurrentUser() authUser: Student,
     @Body() input: Input<StudentInput>
   ): Promise<DataResponse<Student>> {
-    return this.studentService.update(authUser.id, input, authUser);
+    return this.studentService.update(
+      authUser.id,
+      { ...input, image: image.path },
+      authUser
+    );
   }
 
   @Authorized()

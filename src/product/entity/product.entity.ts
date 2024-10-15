@@ -8,7 +8,7 @@ import { Lesson } from '../../e-learning/lessons/lesson/entity/lesson.entity';
 @Index('IDX_Course', ['id'])
 export class Product extends BaseTimeEntry {
   @Column()
-  productName: string;
+  name: string;
 
   @Column({
     type: 'enum',
