@@ -1,4 +1,4 @@
-import { TokenResponse } from '../../../auth/interface';
+import { TokenResponse } from '../../../auth/service/interface';
 
 export interface DataResponse<Entity> {
   status: number;

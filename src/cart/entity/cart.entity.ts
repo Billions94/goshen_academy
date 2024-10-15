@@ -10,12 +10,13 @@ export class Cart extends BaseTimeEntry {
   productName: string;
 
   @ManyToOne(() => Product, (product) => product.course, {
+    nullable: true,
     eager: true,
     onDelete: 'CASCADE',
   })
   @Index('IDX_Product')
   @JoinColumn({ name: 'productId' })
-  product: Product;
+  product: Product | null;
 
   @ManyToOne(() => Student, (student) => student.cart, {
     onDelete: 'CASCADE',
@@ -24,7 +25,7 @@ export class Cart extends BaseTimeEntry {
   @JoinColumn({ name: 'studentId' })
   student: Student;
 
-  @Column('int', { default: 0 })
+  @Column('int', { nullable: false, default: 0 })
   quantity: number;
 
   @Column('timestamptz', { nullable: true, default: null })

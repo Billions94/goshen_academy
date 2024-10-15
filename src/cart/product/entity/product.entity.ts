@@ -1,12 +1,12 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
-import { BaseEntity } from '../../../core/base/base-entity';
+import { BaseTimeEntry } from '../../../core/base/base-time-entry';
 import { Course } from '../../../e-learning/course/entity/course.entity';
 import { Lesson } from '../../../e-learning/lessons/lesson/entity/lesson.entity';
 import { ProductType } from '../../service/interface';
 
 @Entity()
 @Index('IDX_Course', ['id'])
-export class Product extends BaseEntity {
+export class Product extends BaseTimeEntry {
   @Column({
     type: 'enum',
     enum: ProductType,

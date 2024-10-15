@@ -6,12 +6,12 @@ import {
   JsonController,
   Post,
 } from 'routing-controllers';
+import { ErrorResponse, LoginInput } from 'src/e-learning/interfaces';
 import { Inject, Service } from 'typedi';
-import { ErrorResponse, LoginInput } from '../e-learning/interfaces';
-import { Student } from '../e-learning/students/entity/student.entity';
-import { AuthService } from './auth.service';
-import { AuthUser, TokenResponse } from './interface';
-
+import { Student } from '../../e-learning/students/entity/student.entity';
+import { AuthUser } from '../interface';
+import { AuthService } from '../service/auth.service';
+import { TokenResponse } from '../service/interface';
 @Service()
 @JsonController('/auth')
 export class AuthController {

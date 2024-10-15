@@ -1,12 +1,15 @@
 import { Inject, Service } from 'typedi';
-import { ErrorResponse, LoginInput } from '../e-learning/interfaces';
-import { Student } from '../e-learning/students/entity/student.entity';
-import { StudentRepository } from '../e-learning/students/repository/student.repository';
-import Logger from '../utils/logger/logger';
-import { ErrorMapper } from '../utils/mapper/errorMapper';
-import { CredentialManager } from './credential/credential.manager';
-import { AuthUser, TokenResponse } from './interface';
-import { JwtAuthService } from './jwt-auth.service';
+import { Cart } from '../../cart/entity/cart.entity';
+import { CartJobService } from '../../cart/jobs/cart.jobs.service';
+import { ErrorResponse, LoginInput } from '../../e-learning/interfaces';
+import { Student } from '../../e-learning/students/entity/student.entity';
+import { StudentRepository } from '../../e-learning/students/repository/student.repository';
+import Logger from '../../utils/logger/logger';
+import { ErrorMapper } from '../../utils/mapper/errorMapper';
+import { CredentialManager } from '../credential/credential.manager';
+import { AuthUser } from '../interface';
+import { JwtAuthService } from '../jwt/service/jwt-auth.service';
+import { TokenResponse } from './interface';
 
 @Service()
 export class AuthService {
@@ -17,6 +20,8 @@ export class AuthService {
     private readonly credentialManager: CredentialManager,
     @Inject()
     private readonly studentRepository: StudentRepository,
+    @Inject()
+    private readonly cartJobService: CartJobService<Cart>,
     @Inject()
     private readonly errorMapper: ErrorMapper
   ) {}
@@ -70,6 +75,15 @@ export class AuthService {
         const { accessToken, refreshToken } =
           await this.jwtAuthService.tokenGenerator(student);
         await this.credentialManager.hashRefreshToken(refreshToken, student);
+
+        await this.cartJobService.addJob({
+          entity: {
+            student: { id: student.id } as Student,
+            product: null,
+            productName: '',
+            quantity: 0,
+          },
+        });
 
         return { accessToken, refreshToken };
       } else {

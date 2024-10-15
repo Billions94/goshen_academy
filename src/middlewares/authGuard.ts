@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { ExpressMiddlewareInterface, Middleware } from 'routing-controllers';
 import { Inject, Service } from 'typedi';
-import { JwtAuthService } from '../auth/jwt-auth.service';
+import { JwtAuthService } from '../auth/jwt/service/jwt-auth.service';
 import { Student as ExpressUser } from '../e-learning/students/entity/student.entity';
 import { StudentRepository } from '../e-learning/students/repository/student.repository';
 import Logger from '../utils/logger/logger';

@@ -1,8 +1,8 @@
 import * as bcryptService from 'bcrypt';
 import { Inject, Service } from 'typedi';
 import { SelectQueryBuilder } from 'typeorm';
-import { AuthService } from '../../../auth/auth.service';
 import { AuthUser } from '../../../auth/interface';
+import { AuthService } from '../../../auth/service/auth.service';
 import {
   AbstractEntityCrudService,
   FindArgs,

@@ -1,16 +1,15 @@
 import bcryptService from 'bcrypt';
 import { config } from 'dotenv';
-import jwtService from 'jsonwebtoken';
+import jwtService, { JwtPayload } from 'jsonwebtoken';
 import * as process from 'process';
 import { Inject, Service } from 'typedi';
-import { Student } from '../e-learning/students/entity/student.entity';
-import { StudentRepository } from '../e-learning/students/repository/student.repository';
+import { Student } from '../../../e-learning/students/entity/student.entity';
+import { StudentRepository } from '../../../e-learning/students/repository/student.repository';
 import {
-  JwtPayload,
   RefreshTokenResponse,
   TokenResponse,
   VerifyRefreshTokenResponse,
-} from './interface';
+} from '../../service/interface';
 
 config();
 @Service()
@@ -100,7 +99,10 @@ export class JwtAuthService {
       return {
         valid: true,
         expired: false,
-        decodedToken,
+        decodedToken: {
+          id: decodedToken.id,
+          privileges: decodedToken.privileges,
+        },
       };
     } catch (error: any) {
       return {
