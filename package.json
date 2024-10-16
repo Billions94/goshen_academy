@@ -10,8 +10,11 @@
     "start:dev": "ts-node-dev ./src/server.ts",
     "start:docker": "npm run build && npm start",
     "sync": "typeorm -- schema:sync",
-    "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli -d ormconfig.ts",
-    "flag": "--experimental-top-level-await"
+    "typeorm": "npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js -d src/data-source.ts",
+    "migration:generate": "npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:generate -d src/data-source.ts",
+    "migration:run": "npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run -d src/data-source.ts",
+    "migration:revert": "npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:revert -d src/data-source.ts",
+    "migration:show": "npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:show -d src/data-source.ts"
   },
   "keywords": [],
   "author": "",
@@ -66,7 +69,7 @@
     "routing-controllers": "^0.10.4",
     "socket.io": "^4.6.1",
     "typedi": "^0.10.0",
-    "typeorm": "^0.3.13"
+    "typeorm": "^0.3.20"
   },
   "jest": {
     "preset": "ts-jest",

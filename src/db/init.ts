@@ -1,11 +1,10 @@
 import dotenv from 'dotenv';
-import { DataSource } from 'typeorm';
-import ORMConfig from '../ormConfig';
+import ORMConfig from '../data-source';
 import Logger from '../utils/logger/logger';
 dotenv.config();
 
 export class DataBase {
-  public static readonly dataSource = new DataSource(ORMConfig);
+  public static readonly dataSource = ORMConfig;
 
   public static async connect(): Promise<void> {
     try {
