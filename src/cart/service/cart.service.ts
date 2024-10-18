@@ -134,31 +134,29 @@ export class CartService extends AbstractEntityCrudService<
     student: Student,
     paymentMethod: string
   ): Promise<DataResponse<CartPurchase>> {
-    const cartItems = await this.cartRepository.find({
+    const carts = await this.cartRepository.find({
       where: {
         student: { id: student.id },
         deletedAt: IsNull(),
       },
     });
 
-    if (cartItems.length === 0)
+    if (carts.length === 0)
       return this.errorMapper.throw('No items in cart to purchase');
 
     let totalPrice = 0;
 
-    for (const item of cartItems) {
+    for (const item of carts) {
       if (item.product) {
         if (item.product.stock < item.quantity) {
           return this.errorMapper.throw(
             `Not enough stock for product: ${item.product.name}`
           );
         }
-
-        if (typeof item.product.price === 'string') {
-          item.product.price = parseFloat(item.product.price);
-        } else {
-          item.product.price = item.product.price;
-        }
+        item.product.price =
+          typeof item.product.price === 'string'
+            ? parseFloat(item.product.price)
+            : item.product.price;
 
         totalPrice += item.product.price * item.quantity;
       }
@@ -166,7 +164,7 @@ export class CartService extends AbstractEntityCrudService<
 
     const purchaseDetails: CartPurchase = {
       email: student.email,
-      items: cartItems.map((item) => ({
+      items: carts.map((item) => ({
         product: item.product!,
         quantity: item.quantity,
         price: item.product ? item.product.price : 0,
@@ -176,7 +174,7 @@ export class CartService extends AbstractEntityCrudService<
       status: 'Success',
     };
 
-    for (const item of cartItems) {
+    for (const item of carts) {
       if (item.product) {
         item.product.stock -= item.quantity;
         item.product.isPurchased = true;
@@ -186,7 +184,7 @@ export class CartService extends AbstractEntityCrudService<
       item.deletedAt = new Date();
     }
 
-    await this.cartRepository.save(cartItems);
+    await this.cartRepository.save(carts);
     await this.emailJobService.addJob(purchaseDetails);
 
     return { status: 201, data: { purchaseDetails } };
@@ -197,17 +195,17 @@ export class CartService extends AbstractEntityCrudService<
     input: Input<Cart>,
     authUser?: AuthUser
   ): Promise<DataResponse<Cart>> {
-    const newCart = await this.cartRepository.findOne({
+    const cart = await this.cartRepository.findOne({
       where: {
         id,
         student: { id: authUser?.id },
       },
     });
 
-    if (!newCart) return this.errorMapper.throw('Cart item not found', 404);
+    if (!cart) return this.errorMapper.throw('Cart item not found', 404);
 
-    newCart.quantity = input.quantity;
-    await this.cartRepository.save(newCart);
-    return { status: 200, data: { newCart } };
+    cart.quantity = input.quantity;
+    await this.cartRepository.save(cart);
+    return { status: 200, data: { cart } };
   }
 }

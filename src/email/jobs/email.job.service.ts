@@ -27,11 +27,9 @@ export class EmailJobService {
     this.emailQueue.process(async (job) => {
       const { purchaseDetails } = job.data;
 
-      // Use the email service to send the email
       await this.emailService.sendPurchaseConfirmationEmail(purchaseDetails);
     });
 
-    // Optional: handle failed jobs
     this.emailQueue.on('failed', (job, error) => {
       Logger.error(`Job failed for student ${job.data.email}:`, error);
     });
