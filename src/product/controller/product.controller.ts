@@ -1,10 +1,14 @@
 import {
   Body,
   CurrentUser,
+  Delete,
   Get,
   JsonController,
+  Params,
+  Patch,
   Post,
 } from 'routing-controllers';
+import { MessageStatus } from 'src/core/abstract-entity-crud.service';
 import { Inject, Service } from 'typedi';
 import { AuthUser } from '../../auth/interface';
 import { Input } from '../../e-learning/interfaces';
@@ -20,8 +24,8 @@ export class ProductController {
 
   @Post('/add')
   public async createProduct(
-    @Body() input: Input<Product>,
-    @CurrentUser() authUser: AuthUser
+    @CurrentUser() authUser: AuthUser,
+    @Body() input: Input<Product>
   ): Promise<DataResponse<Product>> {
     return this.productService.create(input, authUser);
   }
@@ -29,5 +33,22 @@ export class ProductController {
   @Get()
   public async getProducts(): Promise<Product[]> {
     return this.productService.findMany();
+  }
+
+  @Patch('/productId')
+  public async updateProduct(
+    @CurrentUser() authUser: AuthUser,
+    @Params() productId: string,
+    @Body() input: Input<Product>
+  ): Promise<DataResponse<Product>> {
+    return this.productService.update(productId, input, authUser);
+  }
+
+  @Delete('/productId')
+  public async deleteProduct(
+    @CurrentUser() authUser: AuthUser,
+    @Params() productId: string
+  ): Promise<MessageStatus> {
+    return this.productService.deleteById(productId, authUser);
   }
 }

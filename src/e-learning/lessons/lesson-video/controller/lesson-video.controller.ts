@@ -42,23 +42,23 @@ export class LessonVideoController {
     return this.lessonVideoService.getLessonVideos();
   }
 
-  @Get('/:id')
+  @Get('/:lessonVideoId')
   async getLessonVideo(
-    @Param('id') id: string
+    @Param('lessonVideoId') lessonVideoId: string
   ): Promise<DataResponse<LessonVideo>> {
-    return await this.lessonVideoService.findById(id);
+    return await this.lessonVideoService.findById(lessonVideoId);
   }
 
   @Authorized()
-  @Patch('/:id')
+  @Patch('/:lessonVideoId')
   async updateLessonVideo(
     @CurrentUser() authUser: AuthUser,
-    @Param('id') id: string,
+    @Param('lessonVideoId') lessonVideoId: string,
     @UploadedFile('video', { options: multerOptions() }) video: MulterFile,
     @Body() input: LessonVideoInput
   ): Promise<DataResponse<LessonVideo>> {
     return await this.lessonVideoService.update(
-      id,
+      lessonVideoId,
       {
         ...input,
         url: video.path,
@@ -68,11 +68,11 @@ export class LessonVideoController {
   }
 
   @Authorized()
-  @Delete('/:id')
+  @Delete('/:lessonVideoId')
   async deleteLessonVideo(
     @CurrentUser() authUser: AuthUser,
-    @Param('id') id: string
+    @Param('lessonVideoId') lessonVideoId: string
   ): Promise<DeleteResponse> {
-    return await this.lessonVideoService.deleteById(id, authUser);
+    return await this.lessonVideoService.deleteById(lessonVideoId, authUser);
   }
 }

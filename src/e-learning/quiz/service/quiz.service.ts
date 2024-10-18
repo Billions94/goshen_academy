@@ -1,10 +1,7 @@
 import { Inject, Service } from 'typedi';
 import { SelectQueryBuilder } from 'typeorm';
 import { AuthUser } from '../../../auth/interface';
-import {
-  AbstractEntityCrudService,
-  FindArgs,
-} from '../../../core/abstract-entity-crud.service';
+import { AbstractEntityCrudService, FindArgs } from '../../../core';
 import Logger from '../../../utils/logger/logger';
 import { ErrorMapper } from '../../../utils/mapper/errorMapper';
 import { Input, Order, Pagination, Paging } from '../../interfaces';

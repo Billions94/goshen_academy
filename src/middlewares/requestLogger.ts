@@ -13,7 +13,7 @@ export const logger = pino({
 });
 
 @Service()
-@Middleware({ type: 'before' }) // Executes before controller actions
+@Middleware({ type: 'before' })
 export class RequestLogger implements ExpressMiddlewareInterface {
   use(req: Request, res: Response, next: NextFunction): void {
     const { page, limit, key, value } = req.query;

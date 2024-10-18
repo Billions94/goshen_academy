@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
+  "type": "commonjs",
   "scripts": {
     "test": "LOG_LEVEL=error NODE_ENV=test jest --config jest.config.js jest && exit 1",
     "build": "rm -rf dist && tsc",

@@ -45,18 +45,21 @@ export class CartController {
   }
 
   @Authorized()
-  @Patch('/update/:id')
+  @Patch('/update/:cartId')
   async updateItem(
-    @Param('id') id: string,
+    @Param('cartId') cartId: string,
     @Body() input: Input<Cart>,
     @CurrentUser() authUser: Student
   ) {
-    return this.cartService.update(id, input, authUser);
+    return this.cartService.update(cartId, input, authUser);
   }
 
   @Authorized()
-  @Delete('/delete/:id')
-  async deleteItem(@Param('id') id: string, @CurrentUser() authUser: Student) {
-    return this.cartService.deleteById(id, authUser);
+  @Delete('/delete/:cartId')
+  async deleteItem(
+    @Param('cartId') cartId: string,
+    @CurrentUser() authUser: Student
+  ) {
+    return this.cartService.deleteById(cartId, authUser);
   }
 }

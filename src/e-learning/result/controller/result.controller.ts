@@ -43,27 +43,29 @@ export class ResultController {
     );
   }
 
-  @Get('/:id')
-  async getResult(@Param('id') id: string): Promise<DataResponse<Result>> {
-    return this.resultService.findById(id);
+  @Get('/:resultId')
+  async getResult(
+    @Param('resultId') resultId: string
+  ): Promise<DataResponse<Result>> {
+    return this.resultService.findById(resultId);
   }
 
   @Authorized()
-  @Patch('/:id')
+  @Patch('/:resultId')
   async updateResult(
     @CurrentUser() authUser: AuthUser,
-    @Param('id') id: string,
+    @Param('resultId') resultId: string,
     @Body() input: ResultInput
   ): Promise<DataResponse<Result>> {
-    return this.resultService.update(id, input, authUser);
+    return this.resultService.update(resultId, input, authUser);
   }
 
   @Authorized()
-  @Delete('/:id')
+  @Delete('/:resultId')
   async deleteResult(
     @CurrentUser() authUser: AuthUser,
-    @Param('id') id: string
+    @Param('resultId') resultId: string
   ): Promise<DeleteResponse> {
-    return this.resultService.deleteById(id, authUser);
+    return this.resultService.deleteById(resultId, authUser);
   }
 }

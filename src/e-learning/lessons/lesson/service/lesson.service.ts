@@ -1,10 +1,7 @@
 import { Inject, Service } from 'typedi';
 import { SelectQueryBuilder } from 'typeorm';
 import { AuthUser } from '../../../../auth/interface';
-import {
-  AbstractEntityCrudService,
-  FindArgs,
-} from '../../../../core/abstract-entity-crud.service';
+import { AbstractEntityCrudService, FindArgs } from '../../../../core';
 import Logger from '../../../../utils/logger/logger';
 import { ErrorMapper } from '../../../../utils/mapper/errorMapper';
 import { Input, Order, Pagination, Paging } from '../../../interfaces';
@@ -110,14 +107,7 @@ export class LessonService
         );
       }
 
-      let student: Student | undefined;
-
-      if (input.studentIds) {
-        student = await this.getStudentFromLesson(input?.studentIds);
-      } else student = undefined;
-
-      const newLesson = this.lessonRepository.create(input);
-      await this.lessonRepository.save(newLesson);
+      const newLesson = await this.lessonRepository.save({ ...input });
       const lesson = { id: newLesson.id };
 
       return { status: 201, data: { lesson } };

@@ -33,6 +33,13 @@ export class StudentController {
   @Inject()
   private readonly studentService: StudentService;
 
+  @Post('/register')
+  async createStudent(
+    @Body() input: StudentInput
+  ): Promise<Partial<DataResponse<Student>>> {
+    return this.studentService.create(input);
+  }
+
   @Get()
   async getStudents(
     @QueryParams() { page, limit, key: k, value }: Order & Paging
@@ -58,9 +65,11 @@ export class StudentController {
     return this.studentService.getEnrolledStudents();
   }
 
-  @Get('/:id')
-  async getStudent(@Param('id') id: string): Promise<DataResponse<Student>> {
-    return this.studentService.findById(id);
+  @Get('/:studentId')
+  async getStudent(
+    @Param('studentId') studentId: string
+  ): Promise<DataResponse<Student>> {
+    return this.studentService.findById(studentId);
   }
 
   @Get('/student-id/:studentId')
@@ -68,13 +77,6 @@ export class StudentController {
     @Param('studentId') studentId: string
   ): Promise<DataResponse<Student>> {
     return this.studentService.getStudentByStudentId(studentId);
-  }
-
-  @Post('/register')
-  async createStudent(
-    @Body() input: StudentInput
-  ): Promise<Partial<DataResponse<Student>>> {
-    return this.studentService.create(input);
   }
 
   @Authorized()
@@ -101,21 +103,21 @@ export class StudentController {
   }
 
   @Authorized()
-  @Patch('/:id')
+  @Patch('/:studentId')
   async updateStudent(
-    @Param('id') id: string,
+    @Param('studentId') studentId: string,
     @CurrentUser() student: AuthUser,
     @Body() input: Input<StudentInput>
   ): Promise<Partial<DataResponse<Student>>> {
-    return this.studentService.update(id, input, student);
+    return this.studentService.update(studentId, input, student);
   }
 
   @Authorized()
-  @Delete('/:id')
+  @Delete('/:studentId')
   async deleteStudent(
     @CurrentUser() authUser: AuthUser,
-    @Param('id') id: string
+    @Param('studentId') studentId: string
   ): Promise<DeleteResponse> {
-    return this.studentService.deleteById(id, authUser);
+    return this.studentService.deleteById(studentId, authUser);
   }
 }

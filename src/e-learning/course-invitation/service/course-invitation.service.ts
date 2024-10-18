@@ -2,10 +2,7 @@ import { NotFoundError } from 'routing-controllers';
 import { Inject, Service } from 'typedi';
 import { SelectQueryBuilder } from 'typeorm';
 import { AuthUser } from '../../../auth/interface';
-import {
-  AbstractEntityCrudService,
-  FindArgs,
-} from '../../../core/abstract-entity-crud.service';
+import { AbstractEntityCrudService, FindArgs } from '../../../core';
 import { CourseInvitationJobService } from '../../../core/jobs/course-invitation-job.service';
 import { CourseRepository } from '../../../e-learning/course/repository/course.repository';
 import { DataResponse } from '../../../e-learning/interfaces/response';

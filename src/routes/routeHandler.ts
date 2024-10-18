@@ -2,12 +2,11 @@ import { Express } from 'express';
 import { Action, createExpressServer } from 'routing-controllers';
 import { AuthController } from '../auth/controller/auth.controller';
 import { CartController } from '../cart/controller/cart.controller';
-import { JobController } from '../core/jobs/job.controller';
 import { CourseInvitationController } from '../e-learning/course-invitation/controller/course-invitation.controller';
 import { CourseController } from '../e-learning/course/controller/course.controller';
+import { LessonCategoryController } from '../e-learning/lessons/lesson-category/controller/lesson-category.controller';
+import { LessonVideoController } from '../e-learning/lessons/lesson-video/controller/lesson-video.controller';
 import { LessonController } from '../e-learning/lessons/lesson/controller/lesson.controller';
-import { LessonCategoryController } from '../e-learning/lessons/lessonCategory/controller/lesson-category.controller';
-import { LessonVideoController } from '../e-learning/lessons/lessonVideo/controller/lesson-video.controller';
 import { QuizController } from '../e-learning/quiz/controller/quiz.controller';
 import { ResultController } from '../e-learning/result/controller/result.controller';
 import { StudentController } from '../e-learning/students/controller/student.controller';
@@ -47,7 +46,6 @@ export class RouteHandler {
         QuizController,
         ResultController,
         StudentController,
-        JobController,
         HealthController,
       ],
       middlewares: [AuthGuard, RequireUser, RequestLogger],

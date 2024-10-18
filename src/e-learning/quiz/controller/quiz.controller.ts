@@ -43,27 +43,27 @@ export class QuizController {
     );
   }
 
-  @Get('/:id')
-  async getQuiz(@Param('id') id: string): Promise<DataResponse<Quiz>> {
-    return this.quizService.findById(id);
+  @Get('/:quizId')
+  async getQuiz(@Param('quizId') quizId: string): Promise<DataResponse<Quiz>> {
+    return this.quizService.findById(quizId);
   }
 
   @Authorized()
-  @Patch('/:id')
+  @Patch('/:quizId')
   async updateQuiz(
     @CurrentUser() authUser: AuthUser,
-    @Param('id') id: string,
+    @Param('quizId') quizId: string,
     @Body() input: QuizInput
   ): Promise<DataResponse<Quiz>> {
-    return this.quizService.update(id, input, authUser);
+    return this.quizService.update(quizId, input, authUser);
   }
 
   @Authorized()
-  @Delete('/:id')
+  @Delete('/:quizId')
   async deleteQuiz(
     @CurrentUser() authUser: AuthUser,
-    @Param('id') id: string
+    @Param('quizId') quizId: string
   ): Promise<DeleteResponse> {
-    return this.quizService.deleteById(id, authUser);
+    return this.quizService.deleteById(quizId, authUser);
   }
 }

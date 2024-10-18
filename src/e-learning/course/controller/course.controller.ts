@@ -52,27 +52,29 @@ export class CourseController {
   }
 
   @Authorized()
-  @Get('/:id')
-  async getCourse(@Param('id') id: string): Promise<DataResponse<Course>> {
-    return this.courseService.findById(id);
+  @Get('/:courseId')
+  async getCourse(
+    @Param('courseId') courseId: string
+  ): Promise<DataResponse<Course>> {
+    return this.courseService.findById(courseId);
   }
 
   @Authorized()
-  @Patch('/:id')
+  @Patch('/:courseId')
   async updateCourse(
     @CurrentUser() authUser: AuthUser,
-    @Param('id') id: string,
+    @Param('courseId') courseId: string,
     @Body() courseInput: Input<Course>
   ): Promise<DataResponse<Course>> {
-    return this.courseService.update(id, courseInput, authUser);
+    return this.courseService.update(courseId, courseInput, authUser);
   }
 
   @Authorized()
-  @Delete('/:id')
+  @Delete('/:courseId')
   async deleteCourse(
     @CurrentUser() authUser: AuthUser,
-    @Param('id') id: string
+    @Param('courseId') courseId: string
   ): Promise<MessageStatus> {
-    return this.courseService.deleteById(id, authUser);
+    return this.courseService.deleteById(courseId, authUser);
   }
 }

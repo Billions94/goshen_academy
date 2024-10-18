@@ -1,9 +1,9 @@
 import { Service } from 'typedi';
 import { CreateCourseInput } from '../../e-learning/course/service/interface/create-course.input';
 import { Input } from '../../e-learning/interfaces';
+import { LessonCategory } from '../../e-learning/lessons/lesson-category/entity/lesson-category.entity';
+import { LessonVideo } from '../../e-learning/lessons/lesson-video/entity/lesson-video.entity';
 import { Lesson } from '../../e-learning/lessons/lesson/entity/lesson.entity';
-import { LessonCategory } from '../../e-learning/lessons/lessonCategory/entity/lesson-category.entity';
-import { LessonVideo } from '../../e-learning/lessons/lessonVideo/entity/lesson-video.entity';
 import { Quiz } from '../../e-learning/quiz/entity/quiz.entity';
 import { StudentInput } from '../../e-learning/students/interface';
 

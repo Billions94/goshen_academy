@@ -9,8 +9,8 @@ import {
 import { BaseTimeEntry } from '../../../../core/base/base-time-entry';
 import { ParticipationProperty } from '../../../../core/base/interfaces';
 import { Course } from '../../../../e-learning/course/entity/course.entity';
-import { LessonCategory } from '../../lessonCategory/entity/lesson-category.entity';
-import { LessonVideo } from '../../lessonVideo/entity/lesson-video.entity';
+import { LessonCategory } from '../../lesson-category/entity/lesson-category.entity';
+import { LessonVideo } from '../../lesson-video/entity/lesson-video.entity';
 
 @Index('IDX_Lesson_tb', ['id'], { unique: true })
 @Entity({ name: 'lesson' })

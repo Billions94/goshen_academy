@@ -36,29 +36,29 @@ export class LessonCategoryController {
     return this.lessonCategoryService.getLessonCategories();
   }
 
-  @Get('/:id')
+  @Get('/:lessonCategoryId')
   async getLessonCategory(
-    @Param('id') id: string
+    @Param('lessonCategoryId') lessonCategoryId: string
   ): Promise<DataResponse<LessonCategory>> {
-    return this.lessonCategoryService.findById(id);
+    return this.lessonCategoryService.findById(lessonCategoryId);
   }
 
   @Authorized()
-  @Patch('/:id')
+  @Patch('/:lessonCategoryId')
   async updateLesson(
     @CurrentUser() authUser: AuthUser,
-    @Param('id') id: string,
+    @Param('lessonCategoryId') lessonCategoryId: string,
     @Body() input: LessonCategoryInput
   ): Promise<DataResponse<LessonCategory>> {
-    return this.lessonCategoryService.update(id, input, authUser);
+    return this.lessonCategoryService.update(lessonCategoryId, input, authUser);
   }
 
   @Authorized()
-  @Delete('/:id')
+  @Delete('/:lessonCategoryId')
   async deleteLesson(
     @CurrentUser() authUser: AuthUser,
-    @Param('id') id: string
+    @Param('lessonCategoryId') lessonCategoryId: string
   ): Promise<DeleteResponse> {
-    return this.lessonCategoryService.deleteById(id, authUser);
+    return this.lessonCategoryService.deleteById(lessonCategoryId, authUser);
   }
 }

@@ -88,7 +88,7 @@ export abstract class AbstractEntityCrudService<
   ): Promise<DataResponse<Entity>>;
 
   public abstract update(
-    id: string,
+    entityId: string,
     input: Input<Entity>,
     authUser?: AuthUser
   ): Promise<DataResponse<Entity>>;
@@ -143,16 +143,30 @@ export abstract class AbstractEntityCrudService<
   }
 
   public async findById(
-    id: string,
+    entityId: string,
     args?: AbstractArgs
   ): Promise<DataResponse<Entity>> {
     try {
       const item = await this.getFindQueryBuilder(args)
-        .andWhere(`"${this.alias}"."id" = :id`, { id })
+        .andWhere(`"${this.alias}"."id" = :id`, { id: entityId })
         .getOne();
 
       if (!item) {
         throw new Error(this.NOT_FOUND_ERROR);
+      }
+
+      if (
+        'password' in item &&
+        'secondaryPassword' in item &&
+        'privileges' in item &&
+        'refreshToken' in item &&
+        'isAdmin' in item
+      ) {
+        delete item.password;
+        delete item.secondaryPassword;
+        delete item.privileges;
+        delete item.refreshToken;
+        delete item.isAdmin;
       }
 
       return { data: item, status: 200 };
@@ -173,14 +187,14 @@ export abstract class AbstractEntityCrudService<
   }
 
   public async deleteById(
-    id: string,
+    entityId: string,
     authUser?: AuthUser
   ): Promise<MessageStatus> {
     try {
       if (!authUser) throw new Error('Auth user is required.');
-      if (!this.findById(id)) throw new Error(this.NOT_FOUND_ERROR);
+      if (!this.findById(entityId)) throw new Error(this.NOT_FOUND_ERROR);
 
-      await this.repository.delete(id);
+      await this.repository.delete(entityId);
       return { status: 'success' };
     } catch (error) {
       Logger.warn(error.message);

@@ -1,10 +1,7 @@
 import { Inject, Service } from 'typedi';
 import { IsNull, SelectQueryBuilder } from 'typeorm';
 import { AuthUser } from '../../auth/interface';
-import {
-  AbstractEntityCrudService,
-  FindArgs,
-} from '../../core/abstract-entity-crud.service';
+import { AbstractEntityCrudService, FindArgs } from '../../core';
 import { Input } from '../../e-learning/interfaces';
 import { DataResponse } from '../../e-learning/interfaces/response';
 import { Student } from '../../e-learning/students/entity/student.entity';

@@ -1,3 +1,4 @@
+import http from 'http';
 import 'reflect-metadata';
 
 import { config } from 'dotenv';
@@ -13,7 +14,7 @@ useContainer(Container);
 export class Server {
   private readonly server: Express;
   private readonly port = parseInt(process.env.PORT ?? '3001');
-  private httpServer: any;
+  private httpServer: http.Server;
 
   constructor() {
     this.server = RouteHandler.initialize();
@@ -34,18 +35,18 @@ export class Server {
       this.server._router.stack.forEach((middleware: any) => {
         if (middleware.route) {
           Logger.info(
-            `Initialized controller for route: ${Object.keys(
+            `Initialized controller for route: [${Object.keys(
               middleware.route.methods
-            )[0].toUpperCase()} -> ${middleware.route.path}`
+            )[0].toUpperCase()} -> ${middleware.route.path}]`
           );
         }
       });
     });
   }
 
-  public async stop(): Promise<void> {
+  public stop(): void {
     if (this.httpServer) {
-      await this.httpServer.close();
+      this.httpServer.close();
       Logger.info('Server has been stopped');
     }
   }

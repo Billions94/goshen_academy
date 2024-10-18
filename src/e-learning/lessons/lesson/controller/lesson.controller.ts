@@ -55,27 +55,29 @@ export class LessonController {
     );
   }
 
-  @Get('/:id')
-  async getLesson(@Param('id') id: string): Promise<DataResponse<Lesson>> {
-    return this.lessonService.findById(id);
+  @Get('/:lessonId')
+  async getLesson(
+    @Param('lessonId') lessonId: string
+  ): Promise<DataResponse<Lesson>> {
+    return this.lessonService.findById(lessonId);
   }
 
   @Authorized()
-  @Patch('/:id')
+  @Patch('/:lessonId')
   async updateLesson(
     @CurrentUser() authUser: AuthUser,
-    @Param('id') id: string,
+    @Param('lessonId') lessonId: string,
     @Body() input: Input<Lesson>
   ): Promise<DataResponse<Lesson>> {
-    return this.lessonService.update(id, input, authUser);
+    return this.lessonService.update(lessonId, input, authUser);
   }
 
   @Authorized()
-  @Delete('/:id')
+  @Delete('/:lessonId')
   async deleteLesson(
     @CurrentUser() authUser: AuthUser,
-    @Param('id') id: string
+    @Param('lessonId') lessonId: string
   ): Promise<DeleteResponse> {
-    return this.lessonService.deleteById(id, authUser);
+    return this.lessonService.deleteById(lessonId, authUser);
   }
 }

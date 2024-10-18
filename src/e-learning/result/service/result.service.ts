@@ -5,7 +5,7 @@ import {
   AbstractEntityCrudService,
   FindArgs,
   MessageStatus,
-} from '../../../core/abstract-entity-crud.service';
+} from '../../../core';
 import Logger from '../../../utils/logger/logger';
 import { ErrorMapper } from '../../../utils/mapper/errorMapper';
 import { Input, Order, Pagination, Paging } from '../../interfaces';
